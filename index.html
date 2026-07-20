@@ -2,2200 +2,1200 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SRV Courier • Доставка заказов</title>
-    <script src="https://api-maps.yandex.ru/2.1/?apikey=your_api_key_here&lang=ru_RU" type="text/javascript"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Гюльмира — Спасение принцессы</title>
     <style>
-        :root {
-            --primary: #FF4B00;
-            --primary-hover: #E04300;
-            --primary-light: #FF6B3D;
-            --primary-glow: rgba(255, 75, 0, 0.3);
-            --background: #f0f2f5;
-            --card: #ffffff;
-            --text: #1a1a2e;
-            --text-secondary: #6b7280;
-            --border: #e5e7eb;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-            --shadow: 0 4px 20px rgba(0,0,0,0.08);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
-            --nav-bg: rgba(255,255,255,0.95);
-            --overlay: rgba(0,0,0,0.6);
-            --input-bg: #f9fafb;
-            --success: #10b981;
-            --success-light: #d1fae5;
-            --warning: #f59e0b;
-            --warning-light: #fef3c7;
-            --danger: #ef4444;
-            --danger-light: #fee2e2;
-            --info: #3b82f6;
-            --info-light: #dbeafe;
-            --gradient-primary: linear-gradient(135deg, #FF4B00, #FF8C42);
-            --gradient-card: linear-gradient(145deg, #ffffff, #f8fafc);
-            --radius-sm: 10px;
-            --radius: 16px;
-            --radius-lg: 24px;
-            --radius-xl: 32px;
-            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --map-tile-filter: none;
-        }
-
-        body.dark-theme {
-            --primary: #FF6B3D;
-            --primary-hover: #FF8055;
-            --primary-light: #FF8C66;
-            --primary-glow: rgba(255, 107, 61, 0.4);
-            --background: #0a0c14;
-            --card: #151829;
-            --text: #e8e8f0;
-            --text-secondary: #9ca3af;
-            --border: #252840;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-            --shadow: 0 4px 20px rgba(0,0,0,0.4);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.5);
-            --nav-bg: rgba(15, 17, 26, 0.95);
-            --overlay: rgba(0,0,0,0.85);
-            --input-bg: #1c1f33;
-            --success-light: #064e3b;
-            --warning-light: #78350f;
-            --danger-light: #7f1d1d;
-            --info-light: #1e3a5f;
-            --gradient-card: linear-gradient(145deg, #1a1d2e, #212540);
-            --map-tile-filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(0.9);
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--background);
-            color: var(--text);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: 'Press Start 2P', system-ui;
             overflow: hidden;
-            transition: background var(--transition), color var(--transition);
-            font-size: 15px;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* ==================== SCROLLBAR ==================== */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
-        }
-
-        /* ==================== APP CONTAINER ==================== */
-        #app {
-            display: flex;
-            flex-direction: column;
             height: 100vh;
-            position: relative;
-        }
-
-        /* ==================== HEADER ==================== */
-        .header {
-            background: var(--card);
-            padding: 14px 22px;
+            width: 100vw;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            box-shadow: var(--shadow-sm);
-            z-index: 50;
-            border-bottom: 1px solid var(--border);
-            transition: all var(--transition);
-            position: relative;
-        }
-
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
+            justify-content: center;
+            position: fixed;
+            top: 0;
             left: 0;
-            right: 0;
-            height: 1px;
-            background: var(--gradient-primary);
-            opacity: 0.3;
         }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-icon {
-            width: 38px;
-            height: 38px;
-            background: var(--gradient-primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 12px var(--primary-glow);
-            animation: logoPulse 3s ease-in-out infinite;
-        }
-
-        @keyframes logoPulse {
-            0%, 100% { box-shadow: 0 4px 12px var(--primary-glow); }
-            50% { box-shadow: 0 4px 24px var(--primary-glow); }
-        }
-
-        .logo-text {
-            font-size: 1.6rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--input-bg);
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: all var(--transition);
-            border: 1px solid var(--border);
+        
+        #container {
             position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 500px;
+            max-height: 800px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px #ff00ff, 0 0 60px #00ffff;
+            border: 4px solid #fff;
             overflow: hidden;
+            image-rendering: pixelated;
+            background: #0a001f;
+            touch-action: none;
         }
-
-        .user-badge::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: var(--gradient-primary);
-            opacity: 0;
-            transition: opacity var(--transition);
-            border-radius: 40px;
-        }
-
-        .user-badge:hover::before {
-            opacity: 0.05;
-        }
-
-        .user-badge:active {
-            transform: scale(0.97);
-        }
-
-        .avatar-circle {
-            width: 36px;
-            height: 36px;
-            background: var(--gradient-primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 15px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1;
-            box-shadow: 0 2px 8px var(--primary-glow);
-        }
-
-        #headerName {
-            font-weight: 500;
-            color: var(--text);
-            position: relative;
-            z-index: 1;
-        }
-
-        /* ==================== MAP CONTAINER ==================== */
-        .map-wrapper {
-            flex: 1;
-            position: relative;
-            background: #dce3eb;
-            overflow: hidden;
-            transition: background var(--transition);
-        }
-
-        body.dark-theme .map-wrapper {
-            background: #1a1d2e;
-        }
-
-        #map {
+        
+        canvas {
+            display: block;
             width: 100%;
             height: 100%;
-            transition: filter var(--transition);
+            background: #0a001f;
+            touch-action: none;
+            cursor: crosshair;
         }
-
-        body.dark-theme #map {
-            filter: var(--map-tile-filter);
-        }
-
-        /* ==================== FLOATING BUTTONS ==================== */
-        .map-floating-actions {
+        
+        #preload {
             position: absolute;
-            bottom: 30px;
-            right: 20px;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1a0033, #4a0066, #1a0033);
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            align-items: center;
+            justify-content: center;
+            color: #ff00ff;
+            font-size: 22px;
+            text-shadow: 0 0 30px #ff00ff, 0 0 60px #ff00ff;
             z-index: 100;
+            text-align: center;
+            padding: 20px;
+            animation: bgPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes bgPulse {
+            0%, 100% { background: linear-gradient(135deg, #1a0033, #4a0066, #1a0033); }
+            50% { background: linear-gradient(135deg, #2a0044, #6a0088, #2a0044); }
+        }
+        
+        .preload-title {
+            font-size: 38px;
+            margin-bottom: 8px;
+            animation: glowText 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glowText {
+            0% { text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff; }
+            100% { text-shadow: 0 0 40px #ff00ff, 0 0 80px #ff00ff, 0 0 120px #ff00ff; }
+        }
+        
+        .heart {
+            font-size: 70px;
+            animation: pulse 1.5s infinite;
+            margin: 15px 0;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
         }
 
-        .circle-btn {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: var(--card);
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
+        .preload-btn {
+            background: linear-gradient(45deg, #ff00ff, #ff66ff);
+            color: #000;
+            border: 4px solid #fff;
+            padding: 15px 45px;
+            margin-top: 20px;
+            font-size: 20px;
             cursor: pointer;
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            transition: all var(--transition);
-            color: var(--text);
-            user-select: none;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 0 30px #ff00ff, 0 0 60px #ff00ff;
+            transition: all 0.3s;
+            font-family: 'Press Start 2P', system-ui;
+            touch-action: manipulation;
+            min-width: 150px;
+            border-radius: 8px;
         }
-
-        .circle-btn::after {
-            content: '';
+        
+        .preload-btn:active {
+            transform: scale(0.95);
+        }
+        
+        #menu {
             position: absolute;
-            inset: 0;
-            background: var(--gradient-primary);
-            opacity: 0;
-            transition: opacity var(--transition);
-            border-radius: 50%;
-        }
-
-        .circle-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
-        }
-
-        .circle-btn:active {
-            transform: scale(0.92);
-        }
-
-        .circle-btn:active::after {
-            opacity: 0.1;
-        }
-
-        .circle-btn .btn-icon {
-            position: relative;
-            z-index: 1;
-            transition: transform var(--transition);
-        }
-
-        .circle-btn:hover .btn-icon {
-            transform: scale(1.15);
-        }
-
-        .circle-btn .tooltip {
-            position: absolute;
-            right: 68px;
-            background: var(--text);
-            color: var(--card);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-            transform: translateX(10px);
-            transition: all var(--transition);
-            box-shadow: var(--shadow);
-        }
-
-        .circle-btn:hover .tooltip {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        /* ==================== BOTTOM NAVIGATION ==================== */
-        .bottom-nav {
-            background: var(--nav-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 12px 16px;
-            border-top: 1px solid var(--border);
-            z-index: 60;
-            transition: all var(--transition);
-            position: relative;
-        }
-
-        .bottom-nav::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: 20%;
-            right: 20%;
-            height: 1px;
-            background: var(--gradient-primary);
-            opacity: 0.2;
-        }
-
-        .nav-item {
-            display: flex;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at center, #1a0033, #0a001a);
+            display: none;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
-            color: var(--text-secondary);
-            font-size: 11px;
-            font-weight: 500;
-            transition: all var(--transition);
-            cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 16px;
-            position: relative;
-            min-width: 64px;
-        }
-
-        .nav-item:hover {
-            color: var(--text);
-            background: var(--input-bg);
-        }
-
-        .nav-item.active {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .nav-item.active::before {
-            content: '';
-            position: absolute;
-            top: -9px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 24px;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 0 0 3px 3px;
-        }
-
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
-            transition: transform var(--transition);
-        }
-
-        .nav-item.active svg {
-            transform: scale(1.1);
-        }
-
-        .badge {
-            position: absolute;
-            top: 2px;
-            right: 10px;
-            background: var(--danger);
-            color: white;
-            border-radius: 12px;
-            padding: 2px 7px;
-            font-size: 10px;
-            font-weight: 700;
-            min-width: 20px;
-            text-align: center;
-            box-shadow: 0 2px 6px rgba(239,68,68,0.4);
-            animation: badgePop 0.3s ease;
-        }
-
-        @keyframes badgePop {
-            0% { transform: scale(0); }
-            60% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-
-        /* ==================== PANELS ==================== */
-        .panel {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--card);
-            border-radius: 28px 28px 0 0;
-            box-shadow: 0 -10px 50px rgba(0,0,0,0.3);
-            z-index: 150;
-            max-height: 72vh;
-            overflow-y: auto;
-            padding: 28px 22px 36px;
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid var(--border);
-            border-bottom: none;
-        }
-
-        .panel.visible {
-            transform: translateY(0);
-        }
-
-        .panel-handle {
-            width: 40px;
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-            margin: 0 auto 20px;
-            cursor: grab;
-        }
-
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            position: sticky;
-            top: 0;
-            background: var(--card);
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-            z-index: 1;
-        }
-
-        .panel-header h3 {
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
-        .close-panel {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 20px;
-            color: var(--text);
-            transition: all var(--transition);
+            color: #00ffff;
+            z-index: 10;
         }
-
-        .close-panel:hover {
-            background: var(--danger-light);
-            color: var(--danger);
-            border-color: var(--danger);
+        
+        .menu-title {
+            font-size: 34px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 30px #00ffff, 0 0 60px #00ffff;
+            animation: glow 2s infinite alternate;
         }
-
-        /* ==================== ORDER CARDS ==================== */
-        .order-card {
-            background: var(--input-bg);
-            border-radius: var(--radius);
-            padding: 18px;
-            margin-bottom: 14px;
-            border: 1px solid var(--border);
-            transition: all var(--transition);
+        
+        @keyframes glow {
+            0% { text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff; }
+            100% { text-shadow: 0 0 40px #ff00ff, 0 0 80px #ff00ff, 0 0 120px #ff00ff; }
+        }
+        
+        .menu-btn {
+            background: linear-gradient(45deg, #ff00ff, #ff66ff);
+            color: #000;
+            border: 4px solid #fff;
+            padding: 12px 35px;
+            margin: 8px;
+            font-size: 18px;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 0 30px #ff00ff;
+            transition: all 0.3s;
+            font-family: 'Press Start 2P', system-ui;
+            min-width: 160px;
+            touch-action: manipulation;
+            border-radius: 8px;
         }
-
-        .order-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: var(--gradient-primary);
-            border-radius: 0 2px 2px 0;
-            opacity: 0;
-            transition: opacity var(--transition);
+        
+        .menu-btn:active {
+            transform: scale(0.95);
         }
-
-        .order-card:hover {
-            border-color: var(--primary);
-            box-shadow: var(--shadow);
-            transform: translateY(-2px);
-        }
-
-        .order-card:hover::before {
-            opacity: 1;
-        }
-
-        .order-card .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .order-card .order-id {
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .order-card .price-tag {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            background: var(--primary-glow);
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-
-        .order-card .card-details {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .order-card .card-details span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            background: var(--card);
-            padding: 4px 10px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-        }
-
-        /* ==================== BUTTONS ==================== */
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            padding: 16px 24px;
-            border-radius: 16px;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 14px;
-            cursor: pointer;
-            font-size: 15px;
-            transition: all var(--transition);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px var(--primary-glow);
-            letter-spacing: 0.3px;
-        }
-
-        .btn-primary::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s;
-        }
-
-        .btn-primary:hover::after {
-            transform: translateX(100%);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px var(--primary-glow);
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 14px 20px;
-            border-radius: 16px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: all var(--transition);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .btn-secondary:hover {
-            background: var(--border);
-        }
-
-        .btn-danger {
-            background: transparent;
-            border: 2px solid var(--danger);
-            color: var(--danger);
-            padding: 14px 20px;
-            border-radius: 16px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: all var(--transition);
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .btn-danger:hover {
-            background: var(--danger);
-            color: white;
-            box-shadow: 0 4px 15px rgba(239,68,68,0.3);
-        }
-
-        /* ==================== FORM ELEMENTS ==================== */
-        input, select, textarea {
-            width: 100%;
-            padding: 16px 18px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--input-bg);
+        
+        .menu-heart {
+            font-size: 45px;
             margin: 10px 0;
-            color: var(--text);
-            font-size: 15px;
-            transition: all var(--transition);
-            font-family: inherit;
+            animation: pulse 1.5s infinite;
         }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 4px var(--primary-glow);
-            background: var(--card);
-        }
-
-        input::placeholder {
-            color: var(--text-secondary);
-            opacity: 0.7;
-        }
-
-        /* ==================== CHECKBOX ==================== */
-        .checkbox-group {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            margin: 18px 0;
-            font-size: 14px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 12px;
-            border-radius: var(--radius);
-            transition: background var(--transition);
-        }
-
-        .checkbox-group:hover {
-            background: var(--input-bg);
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
-            margin-top: 2px;
-            accent-color: var(--primary);
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        /* ==================== MODAL ==================== */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--overlay);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            animation: fadeIn 0.2s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-box {
-            background: var(--card);
-            border-radius: var(--radius-xl);
-            padding: 32px 28px;
-            width: 92%;
-            max-width: 440px;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.5);
-            animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 82vh;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(40px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-box h2 {
-            text-align: center;
-            margin-bottom: 24px;
-            font-size: 1.6rem;
-            font-weight: 700;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* ==================== ERROR MESSAGES ==================== */
-        .error-message {
-            color: var(--danger);
-            font-size: 12px;
-            margin-top: -6px;
-            margin-bottom: 6px;
-            display: none;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 0;
-        }
-
-        .error-message.show {
-            display: flex;
-            animation: shake 0.4s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-6px); }
-            75% { transform: translateX(6px); }
-        }
-
-        /* ==================== THEME TOGGLE ==================== */
-        .theme-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 0;
-            cursor: pointer;
-        }
-
-        .theme-toggle-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-        }
-
-        .switch {
-            width: 56px;
-            height: 30px;
-            background: var(--border);
-            border-radius: 30px;
-            position: relative;
-            cursor: pointer;
-            transition: all var(--transition);
-            border: 2px solid var(--border);
-        }
-
-        .switch.active {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .switch::after {
-            content: '';
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 50%;
+        
+        #settings {
             position: absolute;
-            top: 1px;
-            left: 2px;
-            transition: all var(--transition);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .switch.active::after {
-            left: 26px;
-        }
-
-        /* ==================== BALANCE ROW ==================== */
-        .balance-row {
-            display: flex;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 0, 31, 0.98);
+            display: none;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            background: var(--input-bg);
-            padding: 16px 20px;
-            border-radius: var(--radius);
-            margin: 14px 0;
-            border: 1px solid var(--border);
-            transition: all var(--transition);
+            justify-content: center;
+            color: #00ffff;
+            z-index: 20;
+            padding: 20px;
         }
-
-        .balance-row:hover {
-            border-color: var(--primary);
-            box-shadow: var(--shadow-sm);
+        
+        .setting {
+            margin: 15px 0;
+            font-size: 16px;
+            text-align: center;
+            width: 80%;
         }
-
-        /* ==================== SECTION TITLES ==================== */
-        .section-title {
-            font-size: 1rem;
-            font-weight: 700;
-            margin: 24px 0 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text);
-        }
-
-        .section-title::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
-
-        /* ==================== MENU LIST ITEMS (profile sub-sections) ==================== */
-        .menu-list-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 16px;
-            border-radius: var(--radius);
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all var(--transition);
-        }
-
-        .menu-list-item:hover {
-            border-color: var(--primary);
-            box-shadow: var(--shadow-sm);
-            transform: translateX(2px);
-        }
-
-        .menu-list-item .menu-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            background: var(--gradient-primary);
+        
+        .slider-container {
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 19px;
-            flex-shrink: 0;
-            box-shadow: 0 3px 10px var(--primary-glow);
+            gap: 15px;
         }
-
-        .menu-list-item .menu-text {
-            flex: 1;
-            min-width: 0;
+        
+        .slider {
+            width: 200px;
+            -webkit-appearance: none;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            height: 8px;
+            border-radius: 4px;
+            touch-action: none;
         }
-
-        .menu-list-item .menu-title {
-            font-weight: 600;
-            font-size: 14px;
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 20px #ff00ff;
         }
-
-        .menu-list-item .menu-sub {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 2px;
+        
+        .setting-btn {
+            background: linear-gradient(45deg, #ff00ff, #ff66ff);
+            color: #000;
+            border: 4px solid #fff;
+            padding: 10px 35px;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', system-ui;
+            touch-action: manipulation;
+            border-radius: 8px;
+            box-shadow: 0 0 20px #ff00ff;
         }
-
-        .menu-list-item .menu-chevron {
-            color: var(--text-secondary);
-            font-size: 20px;
-            flex-shrink: 0;
+        
+        .setting-btn:active {
+            transform: scale(0.95);
         }
-
-        /* ==================== RANGE SLIDER (settings) ==================== */
-        .range-row {
-            margin: 18px 0;
+        
+        #game {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 0, 31, 0.98);
+            display: none;
+            z-index: 5;
         }
-
-        .range-row label {
-            font-weight: 600;
+        
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 12px;
+            right: 12px;
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 14px;
+            color: #fff;
+            font-size: 10px;
+            text-shadow: 0 0 15px #ff00ff;
+            z-index: 30;
+            pointer-events: none;
         }
-
-        .range-row input[type="range"] {
-            width: 100%;
-            padding: 0;
-            margin: 0;
-            accent-color: var(--primary);
-            background: transparent;
-            border: none;
-            height: 6px;
+        
+        #hud span {
+            background: rgba(0,0,0,0.8);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 2px solid #ff00ff;
+            font-size: 10px;
+            box-shadow: 0 0 20px rgba(255,0,255,0.3);
         }
-
-        /* ==================== RESPONSIVE ==================== */
-        @media (max-width: 480px) {
-            .header {
-                padding: 12px 16px;
-            }
-            .logo-text {
-                font-size: 1.3rem;
-            }
-            .user-badge {
-                padding: 6px 12px;
-                gap: 8px;
-            }
-            .circle-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 22px;
-            }
-            .modal-box {
-                padding: 24px 18px;
-                border-radius: 24px;
-            }
-            .panel {
-                border-radius: 22px 22px 0 0;
-                padding: 22px 16px 30px;
-            }
+        
+        #hud .time-display {
+            border-color: #ffff00;
+            color: #ffff00;
+            box-shadow: 0 0 20px rgba(255,255,0,0.3);
         }
-
-        @media (min-width: 768px) {
-            .modal-box {
-                max-width: 480px;
-            }
-            .panel {
-                max-width: 480px;
-                left: 50%;
-                transform: translate(-50%, 100%);
-            }
-            .panel.visible {
-                transform: translate(-50%, 0);
-            }
+        
+        #upgrade-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: linear-gradient(45deg, #ff00ff, #ff66ff);
+            color: #000;
+            border: 3px solid #fff;
+            padding: 8px 14px;
+            font-size: 10px;
+            cursor: pointer;
+            z-index: 30;
+            font-family: 'Press Start 2P', system-ui;
+            box-shadow: 0 0 30px #ff00ff;
+            transition: all 0.3s;
+            touch-action: manipulation;
+            border-radius: 6px;
+        }
+        
+        #upgrade-btn:active {
+            transform: scale(0.95);
+        }
+        
+        #upgrade-btn:disabled {
+            opacity: 0.4;
+            transform: none;
+            cursor: not-allowed;
+        }
+        
+        #score-display {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            color: #ffff00;
+            font-size: 10px;
+            z-index: 30;
+            background: rgba(0,0,0,0.8);
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 2px solid #ffff00;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(255,255,0,0.3);
+        }
+        
+        #win {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 0, 31, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffff00;
+            z-index: 40;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .win-title {
+            font-size: 30px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 40px #ff00ff, 0 0 80px #ff00ff;
+            animation: glowText 2s ease-in-out infinite alternate;
+        }
+        
+        .win-sub {
+            font-size: 18px;
+            margin: 6px 0;
+            color: #fff;
+            text-shadow: 0 0 20px #00ffff;
+        }
+        
+        .win-heart {
+            font-size: 55px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .win-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .win-btn {
+            background: linear-gradient(45deg, #00ff00, #66ff66);
+            color: #000;
+            border: 4px solid #fff;
+            padding: 12px 35px;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', system-ui;
+            box-shadow: 0 0 30px #00ff00;
+            transition: all 0.3s;
+            touch-action: manipulation;
+            border-radius: 8px;
+        }
+        
+        .win-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .win-btn-restart {
+            background: linear-gradient(45deg, #ff00ff, #ff66ff);
+            box-shadow: 0 0 30px #ff00ff;
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <!-- ==================== HEADER ==================== -->
-        <header class="header">
-            <div class="logo-container">
-                <div class="logo-icon">📦</div>
-                <span class="logo-text">SRV Courier</span>
-            </div>
-            <div class="user-badge" id="userBadge" onclick="handleUserBadgeClick()">
-                <div class="avatar-circle" id="avatarLetter">?</div>
-                <span id="headerName">Гость</span>
-            </div>
-        </header>
+    <div id="container">
+        <div id="preload">
+            <div class="preload-title">ГЮЛЬМИРА</div>
+            <div class="heart">❤️</div>
+            <div>ЭТА ИГРА ДЛЯ ТЕБЯ</div>
+            <button class="preload-btn" onclick="showMenu()">ДАЛЕЕ</button>
+        </div>
 
-        <!-- ==================== MAP ==================== -->
-        <div class="map-wrapper">
-            <div id="map"></div>
-            <div class="map-floating-actions">
-                <div class="circle-btn" id="autoAssignBtn" title="Автоназначение">
-                    <span class="btn-icon">🎯</span>
-                    <span class="tooltip">Автоназначение</span>
+        <div id="menu">
+            <div class="menu-title">ГЮЛЬМИРА</div>
+            <div class="menu-heart">❤️</div>
+            <button class="menu-btn" onclick="startGame()">ИГРАТЬ</button>
+            <button class="menu-btn" onclick="showSettings()">НАСТРОЙКИ</button>
+            <button class="menu-btn" onclick="location.reload()">ВЫХОД</button>
+        </div>
+
+        <div id="settings">
+            <div style="font-size:24px; margin-bottom:20px; text-shadow: 0 0 30px #00ffff;">НАСТРОЙКИ</div>
+            
+            <div class="setting">
+                <div style="margin-bottom:8px;">ЗВУК</div>
+                <div class="slider-container">
+                    <input type="range" id="sound-slider" min="0" max="1" step="0.05" value="0.7" oninput="changeVolume(this.value)" class="slider">
+                    <span id="volume-label" style="min-width:40px;">70%</span>
                 </div>
-                <div class="circle-btn" id="refreshMapBtn" title="Обновить заказы">
-                    <span class="btn-icon">🔄</span>
-                    <span class="tooltip">Обновить заказы</span>
-                </div>
+            </div>
+            
+            <div class="setting">
+                <button class="setting-btn" onclick="hideSettings()">НАЗАД</button>
             </div>
         </div>
 
-        <!-- ==================== BOTTOM NAVIGATION ==================== -->
-        <nav class="bottom-nav">
-            <div class="nav-item active" data-tab="map" onclick="switchTab('map', this)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 10l2-2m0 0l7-7 7 7M5 8v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1"/>
-                </svg>
-                <span>Карта</span>
+        <div id="game">
+            <div id="hud">
+                <span>🧟 <span id="count">0</span>/<span id="total">45</span></span>
+                <span class="time-display">⏱ <span id="time">90</span>с</span>
+                <span>🔫 <span id="level">1</span></span>
             </div>
-            <div class="nav-item" data-tab="tasks" onclick="switchTab('tasks', this)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                </svg>
-                <span>Задания</span>
-                <span class="badge" id="taskBadge" style="display:none;">0</span>
-            </div>
-            <div class="nav-item" data-tab="chats" onclick="switchTab('chats', this)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-1m0-3h.01M12 12h.01M16 12h.01M21 6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2"/>
-                </svg>
-                <span>Чаты</span>
-            </div>
-            <div class="nav-item" data-tab="profile" onclick="switchTab('profile', this)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5.52 19c.64-2.2 1.84-3.35 3.12-4.25a6 6 0 018.72 0c1.28.9 2.48 2.05 3.12 4.25"/>
-                    <circle cx="12" cy="10" r="4"/>
-                </svg>
-                <span>Профиль</span>
-            </div>
-        </nav>
-
-        <!-- ==================== PANELS ==================== -->
-        <div class="panel" id="tasksPanel">
-            <div class="panel-handle"></div>
+            <div id="score-display">💥 <span id="score">0</span></div>
+            <button id="upgrade-btn" onclick="upgradeWeapon()">⬆ УЛУЧШИТЬ</button>
+            <canvas id="gameCanvas"></canvas>
         </div>
-        <div class="panel" id="chatsPanel">
-            <div class="panel-handle"></div>
-        </div>
-        <div class="panel" id="profilePanel">
-            <div class="panel-handle"></div>
-        </div>
-    </div>
 
-    <!-- ==================== ORDER MODAL ==================== -->
-    <div class="modal-overlay" id="orderModal" style="display:none;">
-        <div class="modal-box" id="orderModalContent"></div>
-    </div>
-
-    <!-- ==================== REGISTRATION MODAL ==================== -->
-    <div class="modal-overlay" id="regModal" style="display:none;">
-        <div class="modal-box" id="regModalContent"></div>
+        <div id="win">
+            <div class="win-title">🎉 ПРИНЦЕССА СПАСЕНА! ❤️</div>
+            <div class="win-heart">❤️</div>
+            <div class="win-sub">ГЮЛЬМИРА СПАСЕНА!</div>
+            <div class="win-sub" style="font-size:14px; color:#ff00ff; margin-top:5px;">ТЫ — НАСТОЯЩИЙ ГЕРОЙ!</div>
+            <div class="win-buttons">
+                <button class="win-btn" onclick="returnToMenu()">ПРОДОЛЖИТЬ</button>
+                <button class="win-btn win-btn-restart" onclick="startGame()">ПОПРОБОВАТЬ ЕЩЁ РАЗ</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        (function() {
-            // ==================== GLOBAL STATE ====================
-            const STATE = {
-                user: null,
-                isLogged: false,
-                orders: [],
-                activeOrders: [],
-                reservedOrders: [],
-                map: null,
-                theme: localStorage.getItem('srv_theme') || 'light',
-                currentTab: 'map',
-                mapIconScale: parseFloat(localStorage.getItem('srv_icon_scale')) || 1,
-                trainingEnabled: localStorage.getItem('srv_training') !== 'off'
+        // ============================================================
+        //  ИГРА ДЛЯ ГЮЛЬМИРЫ (ЛЁГКАЯ ВЕРСИЯ)
+        // ============================================================
+        
+        let canvas, ctx;
+        let volume = 0.7;
+        let zombies = [];
+        let bullets = [];
+        let particles = [];
+        let celebrationParticles = [];
+        let score = 0;
+        let gameState = 'preload';
+        let hero = { x: 0, y: 0, w: 40, h: 50 };
+        let mouse = { x: 0, y: 0 };
+        let lastSpawn = 0;
+        let spawnInterval = 2000;
+        let lastShot = 0;
+        let shotCooldown = 220;
+        let weaponLevel = 1;
+        let weaponUpgradeCost = 3;
+        let totalZombiesToKill = 45;
+        let zombiesKilled = 0;
+        let gameStarted = false;
+        let zombieSpawnCount = 1;
+        let containerWidth = 0;
+        let containerHeight = 0;
+        let showPrincess = false;
+        let gameTime = 90;
+        let timerInterval = null;
+        let gameOverTriggered = false;
+        let princessAppeared = false;
+        let maxZombiesOnScreen = 5;
+        let winShown = false;
+        
+        const preloadDiv = document.getElementById('preload');
+        const menuDiv = document.getElementById('menu');
+        const settingsDiv = document.getElementById('settings');
+        const gameDiv = document.getElementById('game');
+        const winDiv = document.getElementById('win');
+        const countSpan = document.getElementById('count');
+        const totalSpan = document.getElementById('total');
+        const levelSpan = document.getElementById('level');
+        const scoreSpan = document.getElementById('score');
+        const timeSpan = document.getElementById('time');
+        const upgradeBtn = document.getElementById('upgrade-btn');
+
+        function initCanvas() {
+            canvas = document.getElementById('gameCanvas');
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                canvas.id = 'gameCanvas';
+                document.getElementById('game').appendChild(canvas);
+            }
+            ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+            resizeCanvas();
+            
+            canvas.addEventListener('touchstart', handleTouch, { passive: false });
+            canvas.addEventListener('touchmove', handleTouch, { passive: false });
+            canvas.addEventListener('click', handleClick);
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === ' ' || e.key === 'Space') {
+                    e.preventDefault();
+                    if (gameState === 'playing' && gameStarted) shoot();
+                }
+                if (e.key === 'u' || e.key === 'U') upgradeWeapon();
+            });
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            if (gameState !== 'playing' || !gameStarted || gameOverTriggered) return;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            if (touch) {
+                mouse.x = (touch.clientX - rect.left) * (canvas.width / rect.width);
+                mouse.y = (touch.clientY - rect.top) * (canvas.height / rect.height);
+                shoot();
+            }
+        }
+
+        function handleClick(e) {
+            if (gameState !== 'playing' || !gameStarted || gameOverTriggered) return;
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = (e.clientX - rect.left) * (canvas.width / rect.width);
+            mouse.y = (e.clientY - rect.top) * (canvas.height / rect.height);
+            shoot();
+        }
+
+        function resizeCanvas() {
+            const container = document.getElementById('container');
+            containerWidth = container.clientWidth;
+            containerHeight = container.clientHeight;
+            if (canvas) {
+                canvas.width = containerWidth;
+                canvas.height = containerHeight;
+            }
+            hero.x = containerWidth * 0.1;
+            hero.y = containerHeight / 2;
+        }
+
+        function showMenu() {
+            preloadDiv.style.display = 'none';
+            menuDiv.style.display = 'flex';
+            gameState = 'menu';
+        }
+
+        function showSettings() {
+            menuDiv.style.display = 'none';
+            settingsDiv.style.display = 'flex';
+            gameState = 'settings';
+        }
+
+        function hideSettings() {
+            settingsDiv.style.display = 'none';
+            menuDiv.style.display = 'flex';
+            gameState = 'menu';
+        }
+
+        function changeVolume(val) {
+            volume = parseFloat(val);
+            document.getElementById('volume-label').textContent = Math.round(volume * 100) + '%';
+        }
+
+        function startGame() {
+            menuDiv.style.display = 'none';
+            settingsDiv.style.display = 'none';
+            gameDiv.style.display = 'block';
+            winDiv.style.display = 'none';
+            gameState = 'playing';
+            gameOverTriggered = false;
+            winShown = false;
+            princessAppeared = false;
+            showPrincess = false;
+            
+            zombies = [];
+            bullets = [];
+            particles = [];
+            celebrationParticles = [];
+            score = 0;
+            lastSpawn = 0;
+            spawnInterval = 2000;
+            weaponLevel = 1;
+            weaponUpgradeCost = 3;
+            totalZombiesToKill = 45;
+            zombiesKilled = 0;
+            gameStarted = true;
+            zombieSpawnCount = 1;
+            gameTime = 90;
+            maxZombiesOnScreen = 5;
+            
+            hero.x = containerWidth * 0.1;
+            hero.y = containerHeight / 2;
+            
+            updateHUD();
+            upgradeBtn.disabled = false;
+            upgradeBtn.textContent = '⬆ УЛУЧШИТЬ';
+            
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                gameTime--;
+                timeSpan.textContent = gameTime;
+                // Таймер просто показывает время, НЕ влияет на поражение
+            }, 1000);
+            
+            if (window.gameLoopId) cancelAnimationFrame(window.gameLoopId);
+            gameLoop();
+        }
+
+        function createZombie() {
+            const size = 25 + Math.random() * 12;
+            const health = 8 + Math.floor(Math.random() * 5);
+            const speed = 0.5 + Math.random() * 0.3;
+            const z = {
+                x: containerWidth + 30,
+                y: 35 + Math.random() * (containerHeight - 70),
+                speed: speed,
+                health: health,
+                maxHealth: health,
+                size: size,
+                color: `hsl(${120 + Math.random() * 30}, 70%, ${25 + Math.random() * 20}%)`,
+                hitFlash: 0,
+                wobble: Math.random() * Math.PI * 2
             };
+            zombies.push(z);
+        }
 
-            const EDERBENT_CENTER = [42.0578, 48.2874];
-
-            // ==================== ORDER GENERATION ====================
-            function generateEderbentOrders() {
-                const baseOrders = [
-                    { id: 201, lat: 42.0615, lon: 48.2912, weight: 1.2, size: 'Маленький', distance: '0.8 км', address: 'ул. Ленина, 14', from: 'ПВЗ Центр' },
-                    { id: 202, lat: 42.0528, lon: 48.2821, weight: 3.5, size: 'Средний', distance: '1.5 км', address: 'пр. Мира, 22', from: 'ПВЗ Южный' },
-                    { id: 203, lat: 42.0683, lon: 48.2955, weight: 0.8, size: 'Маленький', distance: '0.6 км', address: 'ул. Гагарина, 7', from: 'ПВЗ Север' },
-                    { id: 204, lat: 42.0449, lon: 48.2783, weight: 5.8, size: 'Большой', distance: '2.8 км', address: 'пер. Строителей, 3', from: 'ПВЗ Запад' },
-                    { id: 205, lat: 42.0721, lon: 48.3018, weight: 2.4, size: 'Средний', distance: '1.9 км', address: 'ул. Победы, 45', from: 'ПВЗ Восток' }
-                ];
-
-                return baseOrders.map(order => {
-                    const distNum = parseFloat(order.distance);
-                    const price = Math.floor(50 + (order.weight * 8) + (distNum * 5));
-                    const discountedPrice = Math.floor(price * 0.85);
-                    return { ...order, price: discountedPrice };
+        function shoot() {
+            if (!gameStarted || gameState !== 'playing' || gameOverTriggered) return;
+            
+            const now = Date.now();
+            const cooldown = Math.max(100, shotCooldown - weaponLevel * 10);
+            if (now - lastShot < cooldown) return;
+            lastShot = now;
+            
+            const bulletCount = Math.min(weaponLevel, 4);
+            const angle = Math.atan2(mouse.y - hero.y, mouse.x - hero.x);
+            
+            for (let i = 0; i < bulletCount; i++) {
+                const spread = (i - (bulletCount-1)/2) * 0.12;
+                const speed = 8 + weaponLevel * 0.3;
+                bullets.push({
+                    x: hero.x + 22,
+                    y: hero.y - 3,
+                    vx: Math.cos(angle + spread) * speed,
+                    vy: Math.sin(angle + spread) * speed,
+                    size: 4 + weaponLevel * 0.3,
+                    damage: 6 + weaponLevel * 2,
+                    life: 60
                 });
             }
+        }
 
-            // ==================== MAP INITIALIZATION ====================
-            function initMap() {
-                if (typeof ymaps === 'undefined') {
-                    setTimeout(initMap, 500);
-                    return;
-                }
-                ymaps.ready(() => {
-                    if (STATE.map) STATE.map.destroy();
-                    
-                    // Настройка тёмной темы для карты
-                    const mapOptions = {
-                        center: EDERBENT_CENTER,
-                        zoom: 14,
-                        controls: ['zoomControl']
-                    };
-                    
-                    STATE.map = new ymaps.Map('map', mapOptions);
-                    
-                    // Применяем тёмную тему к элементам управления карты
-                    if (STATE.theme === 'dark') {
-                        applyDarkThemeToMap();
-                    }
-                    
-                    STATE.orders = generateEderbentOrders();
-                    renderOrdersOnMap();
-                });
-            }
-
-            function applyDarkThemeToMap() {
-                if (!STATE.map) return;
+        function upgradeWeapon() {
+            if (zombiesKilled >= weaponUpgradeCost) {
+                zombiesKilled -= weaponUpgradeCost;
+                weaponLevel++;
+                weaponUpgradeCost += 2;
+                updateHUD();
+                upgradeBtn.textContent = `⬆ УЛУЧШИТЬ (${weaponUpgradeCost})`;
                 
-                // Стилизация элементов управления
-                const controls = STATE.map.controls;
-                if (controls) {
-                    const zoomControl = controls.get('zoomControl');
-                    if (zoomControl) {
-                        const zoomElement = zoomControl.getContainer();
-                        if (zoomElement) {
-                            zoomElement.style.background = '#1c1f33';
-                            zoomElement.style.border = '1px solid #252840';
-                            const buttons = zoomElement.querySelectorAll('button, ymaps');
-                            buttons.forEach(btn => {
-                                btn.style.background = '#1c1f33';
-                                btn.style.color = '#e8e8f0';
-                            });
-                        }
-                    }
-                }
-            }
-
-            function renderOrdersOnMap() {
-                if (!STATE.map) return;
-                STATE.map.geoObjects.removeAll();
-
-                const iconSize = Math.round(52 * (STATE.mapIconScale || 1));
-                const halfSize = Math.round(iconSize / 2);
-
-                STATE.orders.forEach(order => {
-                    // Создаём кастомную круглую иконку
-                    const orderPlacemark = new ymaps.Placemark(
-                        [order.lat, order.lon],
-                        {
-                            balloonContent: `
-                                <div style="font-family:'Inter',sans-serif;padding:8px;color:#1a1a2e;">
-                                    <strong style="font-size:15px;">📦 Заказ #${order.id}</strong><br>
-                                    <span style="color:#666;">📍 ${order.address}</span><br>
-                                    <span>⚖️ ${order.weight} кг · 📏 ${order.size}</span><br>
-                                    <span>📐 ${order.distance}</span><br>
-                                    <strong style="color:#FF4B00;font-size:18px;">💰 ${order.price} ₽</strong>
-                                </div>
-                            `,
-                            hintContent: `Заказ #${order.id} · ${order.price} ₽`
-                        },
-                        {
-                            iconLayout: 'default#imageWithContent',
-                            iconImageHref: 'data:image/svg+xml;base64,' + btoa(`
-                                <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 52 52">
-                                    <defs>
-                                        <filter id="shadow">
-                                            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.3"/>
-                                        </filter>
-                                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" style="stop-color:#FF4B00;stop-opacity:1"/>
-                                            <stop offset="100%" style="stop-color:#FF8C42;stop-opacity:1"/>
-                                        </linearGradient>
-                                    </defs>
-                                    <circle cx="26" cy="26" r="24" fill="url(#grad)" filter="url(#shadow)"/>
-                                    <circle cx="26" cy="26" r="22" fill="none" stroke="white" stroke-width="2" opacity="0.5"/>
-                                    <text x="26" y="32" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="Arial">📦</text>
-                                </svg>
-                            `),
-                            iconImageSize: [iconSize, iconSize],
-                            iconImageOffset: [-halfSize, -halfSize],
-                            iconContentOffset: [0, 0],
-                            iconShape: {
-                                type: 'Circle',
-                                coordinates: [halfSize, halfSize],
-                                radius: halfSize
-                            }
-                        }
-                    );
-
-                    orderPlacemark.events.add('click', () => openOrderModal(order));
-                    STATE.map.geoObjects.add(orderPlacemark);
-                });
-            }
-
-            // ==================== ORDER MODAL ====================
-            function openOrderModal(order) {
-                const modal = document.getElementById('orderModal');
-                const content = document.getElementById('orderModalContent');
-                const marketPrice = Math.floor(order.price * 1.18);
-
-                content.innerHTML = `
-                    <div style="text-align:center;margin-bottom:20px;">
-                        <div style="font-size:3rem;margin-bottom:8px;">📦</div>
-                        <h3 style="margin:8px 0;font-size:1.3rem;">Заказ #${order.id}</h3>
-                    </div>
-                    
-                    <div style="background:var(--input-bg);border-radius:var(--radius);padding:18px;margin:16px 0;border:1px solid var(--border);">
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                            <span style="font-size:1.2rem;">📍</span>
-                            <strong>Адрес доставки:</strong>
-                        </div>
-                        <p style="margin-left:28px;">${order.address}</p>
-                        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-                            <span style="font-size:1.2rem;">🏪</span>
-                            <strong>Пункт выдачи:</strong>
-                        </div>
-                        <p style="margin-left:28px;">${order.from}</p>
-                    </div>
-                    
-                    <div style="display:flex;justify-content:space-around;margin:18px 0;flex-wrap:wrap;gap:10px;">
-                        <span style="background:var(--input-bg);padding:8px 14px;border-radius:20px;border:1px solid var(--border);">
-                            ⚖️ <strong>${order.weight} кг</strong>
-                        </span>
-                        <span style="background:var(--input-bg);padding:8px 14px;border-radius:20px;border:1px solid var(--border);">
-                            📏 <strong>${order.size}</strong>
-                        </span>
-                        <span style="background:var(--input-bg);padding:8px 14px;border-radius:20px;border:1px solid var(--border);">
-                            📐 <strong>${order.distance}</strong>
-                        </span>
-                    </div>
-                    
-                    <div style="text-align:center;margin:20px 0;padding:16px;background:var(--primary-glow);border-radius:var(--radius);">
-                        <div style="font-size:2.2rem;font-weight:800;color:var(--primary);">${order.price} ₽</div>
-                        <p style="color:var(--text-secondary);font-size:12px;margin-top:4px;">
-                            Выгоднее рынка на ${marketPrice - order.price} ₽ (рынок: ~${marketPrice} ₽)
-                        </p>
-                    </div>
-                    
-                    <button class="btn-primary" id="buildRouteBtn">
-                        🗺️ Построить маршрут
-                    </button>
-                    <button class="btn-primary" id="reserveOrderBtn" style="background:var(--success);box-shadow:0 4px 15px rgba(16,185,129,0.3);">
-                        📌 Забронировать за ${order.price} ₽
-                    </button>
-                    <button class="btn-secondary" id="closeOrderModal">
-                        ✕ Закрыть
-                    </button>
-                `;
-
-                modal.style.display = 'flex';
-
-                document.getElementById('buildRouteBtn').onclick = () => {
-                    buildRoute(order);
-                    modal.style.display = 'none';
-                };
-                document.getElementById('reserveOrderBtn').onclick = () => {
-                    reserveOrder(order);
-                    modal.style.display = 'none';
-                };
-                document.getElementById('closeOrderModal').onclick = () => {
-                    modal.style.display = 'none';
-                };
-            }
-
-            function buildRoute(order) {
-                if (!STATE.map) return;
-                ymaps.route([EDERBENT_CENTER, [order.lat, order.lon]]).then(route => {
-                    STATE.map.geoObjects.add(route);
-                    showToast('✅ Маршрут построен!');
-                }).catch(() => showToast('❌ Не удалось построить маршрут', 'error'));
-            }
-
-            function reserveOrder(order) {
-                if (!STATE.user) {
-                    showToast('⚠️ Сначала зарегистрируйтесь!', 'warning');
-                    showRegistration();
-                    return;
-                }
-                STATE.reservedOrders.push({ ...order, status: 'reserved', reservedAt: new Date().toISOString() });
-                STATE.orders = STATE.orders.filter(o => o.id !== order.id);
-                renderOrdersOnMap();
-                updateTaskBadge();
-                showToast(`✅ Заказ #${order.id} забронирован!`, 'success');
-            }
-
-            // ==================== TOAST NOTIFICATION ====================
-            function showToast(message, type = 'info') {
-                const existingToast = document.querySelector('.toast-notification');
-                if (existingToast) existingToast.remove();
-
-                const colors = {
-                    success: 'var(--success)',
-                    error: 'var(--danger)',
-                    warning: 'var(--warning)',
-                    info: 'var(--info)'
-                };
-
-                const toast = document.createElement('div');
-                toast.className = 'toast-notification';
-                toast.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: var(--card);
-                    color: var(--text);
-                    padding: 14px 24px;
-                    border-radius: 40px;
-                    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                    z-index: 9999;
-                    font-weight: 600;
-                    font-size: 14px;
-                    border-left: 4px solid ${colors[type] || colors.info};
-                    animation: toastIn 0.4s ease, toastOut 0.4s ease 2.6s forwards;
-                    pointer-events: none;
-                `;
-                toast.textContent = message;
-                document.body.appendChild(toast);
-
-                setTimeout(() => toast.remove(), 3000);
-            }
-
-            // Toast animations
-            const toastStyle = document.createElement('style');
-            toastStyle.textContent = `
-                @keyframes toastIn {
-                    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-                    to { opacity: 1; transform: translateX(-50%) translateY(0); }
-                }
-                @keyframes toastOut {
-                    from { opacity: 1; transform: translateX(-50%) translateY(0); }
-                    to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-                }
-            `;
-            document.head.appendChild(toastStyle);
-
-            // ==================== GENERIC INFO MODAL ====================
-            function showInfoModal(html) {
-                let modal = document.getElementById('infoModal');
-                if (!modal) {
-                    modal = document.createElement('div');
-                    modal.className = 'modal-overlay';
-                    modal.id = 'infoModal';
-                    modal.innerHTML = '<div class="modal-box" id="infoModalContent"></div>';
-                    document.body.appendChild(modal);
-                    modal.addEventListener('click', (e) => {
-                        if (e.target.id === 'infoModal') modal.style.display = 'none';
+                for (let i = 0; i < 30; i++) {
+                    particles.push({
+                        x: containerWidth - 40,
+                        y: containerHeight - 40,
+                        vx: Math.random() * 10 - 5,
+                        vy: Math.random() * -10 - 3,
+                        life: 30 + Math.random() * 20,
+                        color: `hsl(${Math.random() * 60 + 180}, 100%, 70%)`,
+                        size: 3 + Math.random() * 5,
+                        isHeart: false
                     });
                 }
-                document.getElementById('infoModalContent').innerHTML = html;
-                modal.style.display = 'flex';
+                
+                if (zombiesKilled < weaponUpgradeCost) {
+                    upgradeBtn.disabled = true;
+                }
+            } else {
+                upgradeBtn.style.backgroundColor = '#ff0000';
+                setTimeout(() => {
+                    upgradeBtn.style.backgroundColor = '#ff00ff';
+                }, 300);
+            }
+        }
+
+        function endGame(win) {
+            if (gameOverTriggered) return;
+            gameOverTriggered = true;
+            gameStarted = false;
+            gameState = 'end';
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            if (win) {
+                showPrincess = true;
+                princessAppeared = true;
+                winDiv.style.display = 'flex';
+                winShown = true;
+                
+                for (let i = 0; i < 80; i++) {
+                    setTimeout(() => {
+                        const x = Math.random() * containerWidth;
+                        const y = Math.random() * containerHeight * 0.6;
+                        const colors = ['#ff00ff', '#00ffff', '#ffff00', '#ff0000', '#00ff00', '#ff6600', '#ff69b4', '#ff1493'];
+                        for (let j = 0; j < 15; j++) {
+                            const angle = (j / 15) * Math.PI * 2 + Math.random() * 0.3;
+                            const speed = 2 + Math.random() * 5;
+                            celebrationParticles.push({
+                                x: x,
+                                y: y,
+                                vx: Math.cos(angle) * speed,
+                                vy: Math.sin(angle) * speed - 1,
+                                life: 50 + Math.random() * 30,
+                                color: colors[Math.floor(Math.random() * colors.length)],
+                                size: 3 + Math.random() * 4,
+                                gravity: 0.04
+                            });
+                        }
+                    }, i * 50);
+                }
+            }
+        }
+
+        function returnToMenu() {
+            winDiv.style.display = 'none';
+            gameDiv.style.display = 'none';
+            menuDiv.style.display = 'flex';
+            gameState = 'menu';
+            if (window.gameLoopId) cancelAnimationFrame(window.gameLoopId);
+            gameStarted = false;
+            showPrincess = false;
+            princessAppeared = false;
+            winShown = false;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateHUD() {
+            countSpan.textContent = zombies.length;
+            totalSpan.textContent = totalZombiesToKill;
+            levelSpan.textContent = weaponLevel;
+            scoreSpan.textContent = zombiesKilled;
+            timeSpan.textContent = gameTime;
+        }
+
+        function gameLoop() {
+            if (gameState !== 'playing' && gameState !== 'end') {
+                window.gameLoopId = requestAnimationFrame(gameLoop);
+                return;
+            }
+            
+            if (gameState === 'playing' && gameStarted && !gameOverTriggered) {
+                updateGame();
+            }
+            drawGame();
+            
+            // ПОБЕДА ТОЛЬКО КОГДА УБИЛИ ВСЕХ 45 ЗОМБИ
+            if (gameState === 'playing' && gameStarted && !gameOverTriggered &&
+                zombiesKilled >= totalZombiesToKill && zombies.length === 0) {
+                endGame(true);
+            }
+            
+            window.gameLoopId = requestAnimationFrame(gameLoop);
+        }
+
+        function updateGame() {
+            const now = Date.now();
+            
+            if (now - lastSpawn > spawnInterval && zombies.length < maxZombiesOnScreen) {
+                const count = Math.min(zombieSpawnCount, maxZombiesOnScreen - zombies.length);
+                for (let i = 0; i < count; i++) {
+                    createZombie();
+                }
+                lastSpawn = now;
+                
+                if (zombiesKilled > 0 && zombiesKilled % 8 === 0 && zombieSpawnCount < 3) {
+                    zombieSpawnCount += 0.3;
+                    spawnInterval = Math.max(1500, spawnInterval - 80);
+                }
             }
 
-            window.closeInfoModal = function() {
-                const modal = document.getElementById('infoModal');
-                if (modal) modal.style.display = 'none';
-            };
-
-            // ==================== TASK BADGE ====================
-            function updateTaskBadge() {
-                const badge = document.getElementById('taskBadge');
-                const count = STATE.reservedOrders.length + STATE.activeOrders.length;
-                if (count > 0) {
-                    badge.textContent = count;
-                    badge.style.display = 'block';
-                    badge.style.animation = 'none';
-                    badge.offsetHeight;
-                    badge.style.animation = 'badgePop 0.3s ease';
-                } else {
-                    badge.style.display = 'none';
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const b = bullets[i];
+                b.x += b.vx;
+                b.y += b.vy;
+                b.life--;
+                if (b.life <= 0 || b.x < -20 || b.x > containerWidth + 20 || 
+                    b.y < -20 || b.y > containerHeight + 20) {
+                    bullets.splice(i, 1);
+                    continue;
                 }
             }
 
-            // ==================== TAB SWITCHING ====================
-            window.switchTab = function(tabName, element) {
-                STATE.currentTab = tabName;
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                if (element) element.classList.add('active');
-
-                closeAllPanels();
-
-                switch (tabName) {
-                    case 'tasks':
-                        showTasksPanel();
-                        break;
-                    case 'chats':
-                        showChatsPanel();
-                        break;
-                    case 'profile':
-                        if (!STATE.user) showRegistration();
-                        else showProfilePanel();
-                        break;
-                    default:
-                        break;
-                }
-            };
-
-            function closeAllPanels() {
-                document.getElementById('tasksPanel').classList.remove('visible');
-                document.getElementById('chatsPanel').classList.remove('visible');
-                document.getElementById('profilePanel').classList.remove('visible');
-            }
-
-            // ==================== TASKS PANEL ====================
-            function showTasksPanel() {
-                const panel = document.getElementById('tasksPanel');
-                panel.innerHTML = `
-                    <div class="panel-handle"></div>
-                    <div class="panel-header">
-                        <h3>📋 Мои задания</h3>
-                        <button class="close-panel" onclick="document.getElementById('tasksPanel').classList.remove('visible')">✕</button>
-                    </div>
-                    
-                    <div class="section-title">🔵 Забронированные (${STATE.reservedOrders.length})</div>
-                    ${STATE.reservedOrders.length === 0 ? 
-                        '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Нет забронированных заказов</p>' :
-                        STATE.reservedOrders.map(o => `
-                            <div class="order-card">
-                                <div class="card-header">
-                                    <span class="order-id">📦 #${o.id}</span>
-                                    <span class="price-tag">${o.price} ₽</span>
-                                </div>
-                                <p>📍 ${o.address}</p>
-                                <p style="color:var(--text-secondary);">🏪 Забрать: ${o.from}</p>
-                                <div class="card-details" style="margin-top:8px;">
-                                    <span>⚖️ ${o.weight} кг</span>
-                                    <span>📐 ${o.distance}</span>
-                                </div>
-                                <button class="btn-primary" style="background:var(--success);box-shadow:0 4px 15px rgba(16,185,129,0.3);" 
-                                    onclick="markAsActive(${o.id})">
-                                    ✅ Забрал — везу клиенту
-                                </button>
-                            </div>
-                        `).join('')
-                    }
-                    
-                    <div class="section-title">🟢 Активные (${STATE.activeOrders.length})</div>
-                    ${STATE.activeOrders.length === 0 ?
-                        '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Нет активных заказов</p>' :
-                        STATE.activeOrders.map(o => `
-                            <div class="order-card">
-                                <div class="card-header">
-                                    <span class="order-id">🚚 #${o.id}</span>
-                                    <span class="price-tag">${o.price} ₽</span>
-                                </div>
-                                <p>📍 ${o.address}</p>
-                                <div class="card-details" style="margin-top:8px;">
-                                    <span>⚖️ ${o.weight} кг</span>
-                                    <span>📐 ${o.distance}</span>
-                                </div>
-                                <button class="btn-primary" onclick="completeOrder(${o.id})">
-                                    ✅ Доставил — получить ${o.price} ₽
-                                </button>
-                            </div>
-                        `).join('')
-                    }
-                `;
-                panel.classList.add('visible');
-            }
-
-            window.markAsActive = function(orderId) {
-                const order = STATE.reservedOrders.find(o => o.id === orderId);
-                if (order) {
-                    STATE.activeOrders.push({ ...order, status: 'active' });
-                    STATE.reservedOrders = STATE.reservedOrders.filter(o => o.id !== orderId);
-                    updateTaskBadge();
-                    showTasksPanel();
-                    showToast(`✅ Заказ #${orderId} в доставке!`, 'success');
-                }
-            };
-
-            window.completeOrder = function(orderId) {
-                if (confirm(`Подтвердить доставку заказа #${orderId}?`)) {
-                    const order = STATE.activeOrders.find(o => o.id === orderId);
-                    if (order && STATE.user) {
-                        STATE.user.balance = (STATE.user.balance || 0) + order.price;
-                        localStorage.setItem('srv_user', JSON.stringify(STATE.user));
-                    }
-                    STATE.activeOrders = STATE.activeOrders.filter(o => o.id !== orderId);
-                    updateTaskBadge();
-                    showTasksPanel();
-                    if (order) {
-                        showToast(`🎉 Заработано ${order.price} ₽!`, 'success');
-                    }
-                }
-            };
-
-            // ==================== CHATS PANEL ====================
-            function showChatsPanel() {
-                const panel = document.getElementById('chatsPanel');
-                panel.innerHTML = `
-                    <div class="panel-handle"></div>
-                    <div class="panel-header">
-                        <h3>💬 Чаты</h3>
-                        <button class="close-panel" onclick="document.getElementById('chatsPanel').classList.remove('visible')">✕</button>
-                    </div>
-                    
-                    <div class="order-card" onclick="openSupportChat()" style="display:flex;align-items:center;gap:14px;">
-                        <span style="font-size:2rem;">📞</span>
-                        <div>
-                            <strong>Поддержка SRV</strong>
-                            <p style="color:var(--text-secondary);font-size:13px;">Задайте вопрос или опишите проблему</p>
-                        </div>
-                    </div>
-                    
-                    <div class="order-card" onclick="openReportChat()" style="display:flex;align-items:center;gap:14px;">
-                        <span style="font-size:2rem;">⚠️</span>
-                        <div>
-                            <strong>Сообщить о нарушении</strong>
-                            <p style="color:var(--text-secondary);font-size:13px;">Пожаловаться на заказ или клиента</p>
-                        </div>
-                    </div>
-                `;
-                panel.classList.add('visible');
-            }
-
-            window.openSupportChat = function() {
-                showInfoModal(`
-                    <h2>📞 Поддержка SRV</h2>
-                    <p style="text-align:center;color:var(--text-secondary);margin-bottom:16px;">
-                        Опишите проблему — ответим в течение 15 минут
-                    </p>
-                    <textarea id="supportMsg" rows="4" placeholder="Опишите вашу проблему..."></textarea>
-                    <div class="error-message" id="errSupportMsg">⚠️ Сообщение слишком короткое (минимум 3 символа)</div>
-                    <label class="btn-secondary" style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
-                        📎 Прикрепить файл
-                        <input type="file" id="supportFile" style="display:none;" onchange="updateAttachLabel('supportFile','supportFileLabel')">
-                    </label>
-                    <p id="supportFileLabel" style="text-align:center;font-size:12px;color:var(--text-secondary);margin-top:4px;"></p>
-                    <button class="btn-primary" onclick="submitSupportMessage()">📤 Отправить в поддержку</button>
-                `);
-            };
-
-            window.openReportChat = function() {
-                showInfoModal(`
-                    <h2>⚠️ Сообщить о нарушении</h2>
-                    <p style="text-align:center;color:var(--text-secondary);margin-bottom:16px;">
-                        Опишите ситуацию — мы разберёмся в ближайшее время
-                    </p>
-                    <textarea id="reportMsg" rows="4" placeholder="Опишите нарушение..."></textarea>
-                    <div class="error-message" id="errReportMsg">⚠️ Сообщение слишком короткое (минимум 3 символа)</div>
-                    <label class="btn-secondary" style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
-                        📎 Прикрепить фото
-                        <input type="file" id="reportFile" accept="image/*" style="display:none;" onchange="updateAttachLabel('reportFile','reportFileLabel')">
-                    </label>
-                    <p id="reportFileLabel" style="text-align:center;font-size:12px;color:var(--text-secondary);margin-top:4px;"></p>
-                    <button class="btn-primary" onclick="submitReportMessage()">📤 Отправить жалобу</button>
-                `);
-            };
-
-            window.updateAttachLabel = function(inputId, labelId) {
-                const input = document.getElementById(inputId);
-                const label = document.getElementById(labelId);
-                if (input.files && input.files[0]) {
-                    label.textContent = '📎 ' + input.files[0].name;
-                } else {
-                    label.textContent = '';
-                }
-            };
-
-            window.submitSupportMessage = function() {
-                const msg = document.getElementById('supportMsg').value.trim();
-                const err = document.getElementById('errSupportMsg');
-                if (msg.length < 3) {
-                    err.classList.add('show');
-                    return;
-                }
-                err.classList.remove('show');
-                const fileInput = document.getElementById('supportFile');
-                const fileName = fileInput.files[0] ? fileInput.files[0].name : null;
-                closeInfoModal();
-                showToast(fileName ? `✅ Отправлено с файлом «${fileName}»` : '✅ Сообщение отправлено в поддержку!', 'success');
-            };
-
-            window.submitReportMessage = function() {
-                const msg = document.getElementById('reportMsg').value.trim();
-                const err = document.getElementById('errReportMsg');
-                if (msg.length < 3) {
-                    err.classList.add('show');
-                    return;
-                }
-                err.classList.remove('show');
-                closeInfoModal();
-                showToast('✅ Жалоба зарегистрирована!', 'success');
-            };
-
-            // ==================== PROFILE PANEL ====================
-            function showProfilePanel() {
-                if (!STATE.user) return;
-                const panel = document.getElementById('profilePanel');
-                const savedTransport = localStorage.getItem('srv_transport') || 'walk';
-
-                panel.innerHTML = `
-                    <div class="panel-handle"></div>
-                    <div class="panel-header">
-                        <h3>👤 Профиль</h3>
-                        <button class="close-panel" onclick="document.getElementById('profilePanel').classList.remove('visible')">✕</button>
-                    </div>
-                    
-                    <div style="text-align:center;margin-bottom:24px;">
-                        <div class="avatar-circle" style="width:80px;height:80px;font-size:32px;margin:0 auto;border-radius:50%;">
-                            ${STATE.user.firstName[0].toUpperCase()}
-                        </div>
-                        <h3 style="margin-top:14px;">${STATE.user.firstName} ${STATE.user.lastName}</h3>
-                        <p style="color:var(--text-secondary);">${STATE.user.email || ''}</p>
-                        <p style="color:var(--text-secondary);font-size:13px;">${STATE.user.phone || ''}</p>
-                    </div>
-                    
-                    <div class="balance-row">
-                        <span>💰 Баланс</span>
-                        <strong style="color:var(--primary);font-size:1.4rem;">${STATE.user.balance || 0} ₽</strong>
-                    </div>
-                    <button class="btn-secondary" onclick="showEarningsHistory()">📊 История заработка</button>
-                    
-                    <div style="margin:20px 0;">
-                        <label style="font-weight:600;display:block;margin-bottom:8px;">🚲 Тип передвижения</label>
-                        <select id="transportSelect" onchange="saveTransport(this.value)">
-                            <option value="walk" ${savedTransport === 'walk' ? 'selected' : ''}>🚶 Пешком</option>
-                            <option value="ebike" ${savedTransport === 'ebike' ? 'selected' : ''}>⚡ Электровелосипед</option>
-                            <option value="bike" ${savedTransport === 'bike' ? 'selected' : ''}>🚲 Велосипед</option>
-                        </select>
-                    </div>
-                    
-                    <div class="section-title">🏆 Бонусы и статус</div>
-                    <div class="menu-list-item" style="cursor:default;">
-                        <div class="menu-icon">🏆</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Активных бонусов</div>
-                            <div class="menu-sub">3 бонуса · сгорают через 12 дней</div>
-                        </div>
-                    </div>
-                    <div class="menu-list-item" style="cursor:default;">
-                        <div class="menu-icon">📰</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Новости</div>
-                            <div class="menu-sub">Новый ПВЗ открыт в Эдербенте!</div>
-                        </div>
-                    </div>
-                    <div class="menu-list-item" style="cursor:default;">
-                        <div class="menu-icon">📄</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Документы</div>
-                            <div class="menu-sub">Водительское удостоверение · Паспорт</div>
-                        </div>
-                    </div>
-                    <div class="menu-list-item" style="cursor:default;">
-                        <div class="menu-icon">⭐</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Любимые ПВЗ</div>
-                            <div class="menu-sub">ПВЗ Центр · ПВЗ Север</div>
-                        </div>
-                    </div>
-
-                    <div class="section-title">🧭 Ещё</div>
-                    <div class="menu-list-item" onclick="showCourierWorld()">
-                        <div class="menu-icon">🌍</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Мир курьера</div>
-                            <div class="menu-sub">Рейтинг, цели недели, сообщество</div>
-                        </div>
-                        <span class="menu-chevron">›</span>
-                    </div>
-                    <div class="menu-list-item" onclick="showReferralProgram()">
-                        <div class="menu-icon">🤝</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Реферальная программа</div>
-                            <div class="menu-sub">Приглашайте друзей — получайте бонусы</div>
-                        </div>
-                        <span class="menu-chevron">›</span>
-                    </div>
-                    <div class="menu-list-item" onclick="showTraining()">
-                        <div class="menu-icon">🎓</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Обучение</div>
-                            <div class="menu-sub">Короткие уроки для курьеров</div>
-                        </div>
-                        <span class="menu-chevron">›</span>
-                    </div>
-                    <div class="menu-list-item" onclick="showFeedbackForm()">
-                        <div class="menu-icon">📝</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Обратная связь</div>
-                            <div class="menu-sub">Поделитесь идеями по улучшению</div>
-                        </div>
-                        <span class="menu-chevron">›</span>
-                    </div>
-                    <div class="menu-list-item" onclick="showSettingsPanel()">
-                        <div class="menu-icon">⚙️</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Настройки</div>
-                            <div class="menu-sub">Тема, размер иконок, обучение</div>
-                        </div>
-                        <span class="menu-chevron">›</span>
-                    </div>
-                    
-                    <button class="btn-danger" onclick="logout()">
-                        🚪 Выйти из аккаунта
-                    </button>
-                `;
-                panel.classList.add('visible');
-            }
-
-            // ==================== PROFILE SUB-SECTIONS ====================
-            window.showCourierWorld = function() {
-                showInfoModal(`
-                    <h2>🌍 Мир курьера</h2>
-                    <div class="menu-list-item" style="cursor:default;">
-                        <div class="menu-icon">🏆</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Рейтинг курьеров Эдербента</div>
-                            <div class="menu-sub">Вы на 12 месте из 340 курьеров</div>
-                        </div>
-                    </div>
-                    <div class="menu-list-item" style="cursor:default;">
-                        <div class="menu-icon">🎯</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Цель недели</div>
-                            <div class="menu-sub">Ещё 7 заказов до воскресенья — бонус 500 ₽</div>
-                        </div>
-                    </div>
-                    <div class="menu-list-item" style="cursor:default;">
-                        <div class="menu-icon">📣</div>
-                        <div class="menu-text">
-                            <div class="menu-title">Сообщество</div>
-                            <div class="menu-sub">Чат курьеров вашего города</div>
-                        </div>
-                    </div>
-                    <button class="btn-secondary" onclick="closeInfoModal()">Закрыть</button>
-                `);
-            };
-
-            window.showReferralProgram = function() {
-                if (STATE.user && !STATE.user.referralCode) {
-                    const base = (STATE.user.firstName || 'CR').slice(0, 3).toUpperCase();
-                    STATE.user.referralCode = 'SRV-' + base + Math.floor(1000 + Math.random() * 9000);
-                    localStorage.setItem('srv_user', JSON.stringify(STATE.user));
-                }
-                const code = STATE.user ? STATE.user.referralCode : '';
-                showInfoModal(`
-                    <h2>🤝 Реферальная программа</h2>
-                    <p style="text-align:center;color:var(--text-secondary);margin-bottom:16px;">
-                        Пригласите друга — получите <strong style="color:var(--primary);">300 ₽</strong>, когда он доставит первые 5 заказов
-                    </p>
-                    <div class="balance-row">
-                        <span>Ваш код</span>
-                        <strong style="color:var(--primary);">${code}</strong>
-                    </div>
-                    <button class="btn-primary" onclick="copyReferralCode()">📋 Скопировать код</button>
-                    <p style="text-align:center;color:var(--text-secondary);font-size:13px;margin-top:14px;">Приглашено друзей: 2 · Заработано: 600 ₽</p>
-                    <button class="btn-secondary" onclick="closeInfoModal()">Закрыть</button>
-                `);
-            };
-
-            window.copyReferralCode = function() {
-                const code = STATE.user ? STATE.user.referralCode : '';
-                if (navigator.clipboard && code) {
-                    navigator.clipboard.writeText(code)
-                        .then(() => showToast('✅ Код скопирован!', 'success'))
-                        .catch(() => showToast('Ваш код: ' + code));
-                } else if (code) {
-                    showToast('Ваш код: ' + code);
-                }
-            };
-
-            window.showTraining = function() {
-                const lessons = [
-                    { icon: '🗺️', title: 'Как быстро находить заказы', sub: '4 мин · Видео' },
-                    { icon: '💬', title: 'Общение с клиентами', sub: '3 мин · Видео' },
-                    { icon: '🛡️', title: 'Безопасность на дороге', sub: '5 мин · Видео' }
-                ];
-                showInfoModal(`
-                    <h2>🎓 Обучение</h2>
-                    ${!STATE.trainingEnabled ? '<p style="text-align:center;color:var(--warning);font-size:13px;margin-bottom:12px;">⚠️ Обучающие подсказки выключены в настройках</p>' : ''}
-                    ${lessons.map(l => `
-                        <div class="menu-list-item" onclick="showToast('▶️ Урок начат: ${l.title}')">
-                            <div class="menu-icon">${l.icon}</div>
-                            <div class="menu-text">
-                                <div class="menu-title">${l.title}</div>
-                                <div class="menu-sub">${l.sub}</div>
-                            </div>
-                            <span class="menu-chevron">›</span>
-                        </div>
-                    `).join('')}
-                    <button class="btn-secondary" onclick="closeInfoModal()">Закрыть</button>
-                `);
-            };
-
-            window.showFeedbackForm = function() {
-                showInfoModal(`
-                    <h2>📝 Обратная связь</h2>
-                    <p style="text-align:center;color:var(--text-secondary);margin-bottom:12px;">Что можно улучшить в приложении?</p>
-                    <textarea id="feedbackText" rows="4" placeholder="Ваши идеи и пожелания..."></textarea>
-                    <div class="error-message" id="errFeedback">⚠️ Напишите хотя бы пару слов</div>
-                    <button class="btn-primary" onclick="submitFeedback()">📤 Отправить отзыв</button>
-                `);
-            };
-
-            window.submitFeedback = function() {
-                const text = document.getElementById('feedbackText').value.trim();
-                const err = document.getElementById('errFeedback');
-                if (text.length < 3) {
-                    err.classList.add('show');
-                    return;
-                }
-                err.classList.remove('show');
-                closeInfoModal();
-                showToast('✅ Спасибо за отзыв!', 'success');
-            };
-
-            window.showSettingsPanel = function() {
-                showInfoModal(`
-                    <h2>⚙️ Настройки</h2>
-                    <div class="range-row">
-                        <label><span>📍 Размер иконок на карте</span><span id="scaleValue">${Math.round(STATE.mapIconScale * 100)}%</span></label>
-                        <input type="range" id="iconScaleRange" min="0.6" max="1.6" step="0.1" value="${STATE.mapIconScale}" oninput="updateIconScale(this.value)">
-                    </div>
-                    <div class="theme-toggle" onclick="toggleTheme()">
-                        <div class="theme-toggle-label">
-                            <span style="font-size:1.4rem;">🌓</span>
-                            <span>Тёмная тема</span>
-                        </div>
-                        <div class="switch ${STATE.theme === 'dark' ? 'active' : ''}" id="themeSwitch"></div>
-                    </div>
-                    <div class="theme-toggle" onclick="toggleTraining()">
-                        <div class="theme-toggle-label">
-                            <span style="font-size:1.4rem;">🎓</span>
-                            <span>Обучающие подсказки</span>
-                        </div>
-                        <div class="switch ${STATE.trainingEnabled ? 'active' : ''}" id="trainingSwitch"></div>
-                    </div>
-                    <button class="btn-secondary" onclick="closeInfoModal()">Закрыть</button>
-                `);
-            };
-
-            window.updateIconScale = function(value) {
-                STATE.mapIconScale = parseFloat(value);
-                localStorage.setItem('srv_icon_scale', value);
-                const label = document.getElementById('scaleValue');
-                if (label) label.textContent = Math.round(value * 100) + '%';
-                renderOrdersOnMap();
-            };
-
-            window.toggleTraining = function() {
-                STATE.trainingEnabled = !STATE.trainingEnabled;
-                localStorage.setItem('srv_training', STATE.trainingEnabled ? 'on' : 'off');
-                const sw = document.getElementById('trainingSwitch');
-                if (sw) sw.classList.toggle('active', STATE.trainingEnabled);
-                showToast(STATE.trainingEnabled ? '🎓 Обучение включено' : '🎓 Обучение выключено');
-            };
-
-            window.saveTransport = function(value) {
-                localStorage.setItem('srv_transport', value);
-                showToast('✅ Тип передвижения сохранён!', 'success');
-            };
-
-            window.showEarningsHistory = function() {
-                const history = `
-        📊 История заработка:
-        —————————————————
-        Сегодня: +1 240 ₽ (2 заказа)
-        Вчера: +890 ₽ (1 заказ)
-        Неделя: +8 900 ₽ (12 заказов)
-        Месяц: +45 320 ₽ (58 заказов)
-        —————————————————
-        💵 Средний чек: 78 ₽
-        📦 Всего доставлено: 73
-        ⭐ Рейтинг: 4.8
-                `;
-                alert(history);
-            };
-
-            // ==================== THEME TOGGLE ====================
-            window.toggleTheme = function() {
-                STATE.theme = STATE.theme === 'dark' ? 'light' : 'dark';
-                document.body.classList.toggle('dark-theme', STATE.theme === 'dark');
-                localStorage.setItem('srv_theme', STATE.theme);
-
-                const sw = document.getElementById('themeSwitch');
-                if (sw) {
-                    sw.classList.toggle('active', STATE.theme === 'dark');
+            for (let i = zombies.length - 1; i >= 0; i--) {
+                const z = zombies[i];
+                z.x -= z.speed;
+                z.wobble += 0.05;
+                z.y += Math.sin(z.wobble) * 0.15;
+                z.y = Math.max(25, Math.min(containerHeight - 25, z.y));
+                if (z.hitFlash > 0) z.hitFlash--;
+                
+                if (z.x < -50) {
+                    zombies.splice(i, 1);
+                    continue;
                 }
                 
-                // Применяем тему к карте
-                if (STATE.map) {
-                    if (STATE.theme === 'dark') {
-                        applyDarkThemeToMap();
-                    } else {
-                        // Сброс стилей карты при светлой теме
-                        const controls = STATE.map.controls;
-                        if (controls) {
-                            const zoomControl = controls.get('zoomControl');
-                            if (zoomControl) {
-                                const zoomElement = zoomControl.getContainer();
-                                if (zoomElement) {
-                                    zoomElement.style.background = '';
-                                    zoomElement.style.border = '';
-                                    const buttons = zoomElement.querySelectorAll('button, ymaps');
-                                    buttons.forEach(btn => {
-                                        btn.style.background = '';
-                                        btn.style.color = '';
-                                    });
-                                }
+                for (let j = bullets.length - 1; j >= 0; j--) {
+                    const b = bullets[j];
+                    const dx = b.x - z.x;
+                    const dy = b.y - z.y;
+                    if (Math.hypot(dx, dy) < z.size/2 + b.size) {
+                        z.health -= b.damage;
+                        z.hitFlash = 5;
+                        bullets.splice(j, 1);
+                        createHitEffect(b.x, b.y, '#ffff00');
+                        
+                        if (z.health <= 0) {
+                            zombies.splice(i, 1);
+                            zombiesKilled++;
+                            score += 50;
+                            updateHUD();
+                            createHitEffect(z.x, z.y, '#ff4444');
+                            
+                            if (zombiesKilled >= weaponUpgradeCost) {
+                                upgradeBtn.disabled = false;
                             }
                         }
+                        break;
                     }
                 }
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                if (!p.isHeart) p.vy += 0.08;
+                p.life--;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            updateHUD();
+        }
+
+        function createHitEffect(x, y, color = '#ffff00') {
+            for (let i = 0; i < 12; i++) {
+                particles.push({
+                    x: x + Math.random() * 16 - 8,
+                    y: y + Math.random() * 16 - 8,
+                    vx: Math.random() * 6 - 3,
+                    vy: Math.random() * 6 - 4,
+                    life: 15 + Math.random() * 15,
+                    color: color,
+                    size: 2 + Math.random() * 4,
+                    isHeart: false
+                });
+            }
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, containerWidth, containerHeight);
+            
+            const grad = ctx.createLinearGradient(0, 0, 0, containerHeight);
+            grad.addColorStop(0, '#0a001a');
+            grad.addColorStop(0.2, '#1a0033');
+            grad.addColorStop(0.5, '#2d004d');
+            grad.addColorStop(0.8, '#1a0033');
+            grad.addColorStop(1, '#0a001a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, containerWidth, containerHeight);
+            
+            for (let i = 0; i < 50; i++) {
+                const sx = (i * 137.5 + 42) % containerWidth;
+                const sy = (i * 97.3 + 13) % (containerHeight * 0.5);
+                const brightness = 0.3 + Math.sin(i * 1.7 + Date.now() * 0.001) * 0.3;
+                ctx.fillStyle = `rgba(255, 255, 255, ${brightness * 0.5})`;
+                ctx.beginPath();
+                ctx.arc(sx, sy, 1 + Math.random(), 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            const moonX = containerWidth - 55;
+            const moonY = 50;
+            const glow = ctx.createRadialGradient(moonX, moonY, 10, moonX, moonY, 60);
+            glow.addColorStop(0, 'rgba(255, 200, 100, 0.2)');
+            glow.addColorStop(0.5, 'rgba(255, 200, 100, 0.1)');
+            glow.addColorStop(1, 'rgba(255, 200, 100, 0)');
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 60, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 22, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 220, 150, 0.3)';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 15, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 240, 200, 0.5)';
+            ctx.fill();
+            
+            for (let i = 0; i < 8; i++) {
+                const x = i * 70 + 15;
+                const h = 30 + Math.random() * 45;
+                ctx.fillStyle = 'rgba(20, 10, 30, 0.5)';
+                ctx.fillRect(x, containerHeight - h - 10, 30, h);
+                for (let wy = 0; wy < h - 8; wy += 15) {
+                    if (Math.random() > 0.5) {
+                        ctx.fillStyle = `rgba(255, 200, 50, ${0.05 + Math.random() * 0.1})`;
+                        ctx.fillRect(x + 6, containerHeight - h - 8 + wy, 6, 6);
+                    }
+                }
+            }
+            
+            for (let i = 0; i < 3; i++) {
+                const x = (i * 180 + Date.now() * 0.005) % (containerWidth + 150) - 75;
+                const fog = ctx.createRadialGradient(x, containerHeight - 15, 5, x, containerHeight - 5, 120);
+                fog.addColorStop(0, 'rgba(80, 50, 120, 0.08)');
+                fog.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = fog;
+                ctx.fillRect(x - 120, containerHeight - 140, 240, 140);
+            }
+
+            for (const p of particles) {
+                ctx.globalAlpha = Math.min(1, p.life / 15);
+                if (p.isHeart) {
+                    ctx.font = `${p.size * 1.8}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = p.color;
+                    ctx.fillText('❤️', p.x, p.y);
+                } else {
+                    ctx.fillStyle = p.color;
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 5;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size || 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            for (const b of bullets) {
+                ctx.shadowColor = '#00ffff';
+                ctx.shadowBlur = 12;
+                ctx.fillStyle = '#00ffff';
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                const glow2 = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.size * 2);
+                glow2.addColorStop(0, 'rgba(0, 255, 255, 0.3)');
+                glow2.addColorStop(1, 'rgba(0, 255, 255, 0)');
+                ctx.fillStyle = glow2;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.size * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            for (const z of zombies) {
+                ctx.shadowColor = '#00ff00';
+                ctx.shadowBlur = 8;
+                const gradZ = ctx.createRadialGradient(z.x - 5, z.y - 5, 2, z.x, z.y, z.size/2);
+                const col = z.hitFlash > 0 ? '#ffffff' : z.color;
+                gradZ.addColorStop(0, col);
+                gradZ.addColorStop(1, z.hitFlash > 0 ? '#ff6666' : `hsl(${120 + Math.random() * 30}, 60%, 15%)`);
+                ctx.fillStyle = gradZ;
+                ctx.beginPath();
+                ctx.arc(z.x, z.y, z.size/2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                const eyeS = z.size * 0.13;
+                ctx.fillStyle = '#ff0000';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.arc(z.x - z.size * 0.2, z.y - z.size * 0.08, eyeS, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(z.x + z.size * 0.2, z.y - z.size * 0.08, eyeS, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.shadowBlur = 0;
+                ctx.beginPath();
+                ctx.arc(z.x - z.size * 0.23, z.y - z.size * 0.12, eyeS * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(z.x + z.size * 0.17, z.y - z.size * 0.12, eyeS * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                const hpW = z.size * 0.7;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(z.x - hpW/2, z.y - z.size/2 - 10, hpW, 4);
+                const hp = Math.max(0, z.health / z.maxHealth);
+                ctx.fillStyle = hp > 0.5 ? '#00ff00' : hp > 0.25 ? '#ffff00' : '#ff0000';
+                ctx.fillRect(z.x - hpW/2, z.y - z.size/2 - 10, hpW * hp, 4);
+                ctx.shadowBlur = 0;
+            }
+
+            const hx = hero.x;
+            const hy = hero.y;
+            
+            ctx.shadowColor = '#ff00ff';
+            ctx.shadowBlur = 15;
+            
+            const gradH = ctx.createLinearGradient(hx - 12, hy - 18, hx + 12, hy + 12);
+            gradH.addColorStop(0, '#4477ff');
+            gradH.addColorStop(1, '#2244aa');
+            ctx.fillStyle = gradH;
+            ctx.fillRect(hx - 13, hy - 19, 26, 34);
+            
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = '#ffcc99';
+            ctx.beginPath();
+            ctx.arc(hx, hy - 23, 13, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(hx - 4, hy - 25, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(hx + 4, hy - 25, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(hx, hy - 20, 4.5, 0.1, Math.PI - 0.1);
+            ctx.stroke();
+            ctx.fillStyle = '#4a2810';
+            ctx.beginPath();
+            ctx.arc(hx, hy - 30, 11, Math.PI, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.shadowBlur = 5;
+            ctx.fillStyle = '#888';
+            ctx.shadowColor = '#aaa';
+            ctx.fillRect(hx + 11, hy - 8, 20, 4);
+            ctx.fillStyle = '#666';
+            ctx.fillRect(hx + 26, hy - 7, 8, 8);
+            ctx.fillStyle = '#444';
+            ctx.fillRect(hx + 30, hy - 5, 4, 4);
+            ctx.fillStyle = '#ff6600';
+            ctx.fillRect(hx + 29, hy - 4, 2, 2);
+            ctx.shadowBlur = 0;
+            
+            if (showPrincess && princessAppeared) {
+                const px = containerWidth / 2;
+                const py = containerHeight / 2 - 20;
                 
-                showToast(`🌓 ${STATE.theme === 'dark' ? 'Тёмная' : 'Светлая'} тема активирована`);
-            };
-
-            // Apply theme on load
-            if (STATE.theme === 'dark') {
-                document.body.classList.add('dark-theme');
-            }
-
-            // ==================== REGISTRATION ====================
-            function showRegistration() {
-                const modal = document.getElementById('regModal');
-                const content = document.getElementById('regModalContent');
-                content.innerHTML = `
-                    <h2>🚀 Регистрация в SRV Courier</h2>
-                    <p style="text-align:center;color:var(--text-secondary);margin-bottom:20px;">
-                        Зарабатывайте от <strong style="color:var(--primary);">55 ₽</strong> за заказ
-                    </p>
-                    
-                    <input type="text" id="regFirstName" placeholder="Имя *" autocomplete="given-name">
-                    <div class="error-message" id="errFirstName">⚠️ Введите имя (минимум 2 буквы)</div>
-                    
-                    <input type="text" id="regLastName" placeholder="Фамилия *" autocomplete="family-name">
-                    <div class="error-message" id="errLastName">⚠️ Введите фамилию (минимум 2 буквы)</div>
-                    
-                    <input type="date" id="regBirthdate" placeholder="Дата рождения *">
-                    <div class="error-message" id="errBirthdate">⚠️ Выберите дату рождения (минимум 16 лет)</div>
-                    
-                    <input type="email" id="regEmail" placeholder="Email *" autocomplete="email">
-                    <div class="error-message" id="errEmail">⚠️ Введите корректный email</div>
-                    
-                    <input type="tel" id="regPhone" placeholder="Телефон * (+7XXXXXXXXXX)" autocomplete="tel">
-                    <div class="error-message" id="errPhone">⚠️ Введите номер телефона (минимум 10 цифр)</div>
-                    
-                    <div class="checkbox-group" onclick="document.getElementById('acceptTerms').click()">
-                        <input type="checkbox" id="acceptTerms" onclick="event.stopPropagation()">
-                        <label for="acceptTerms">
-                            Я принимаю <span style="color:var(--primary);text-decoration:underline;cursor:pointer;">условия использования</span> 
-                            и <span style="color:var(--primary);text-decoration:underline;cursor:pointer;">политику конфиденциальности</span> SRV Courier
-                        </label>
-                    </div>
-                    <div class="error-message" id="errTerms">⚠️ Необходимо принять условия</div>
-                    
-                    <button class="btn-primary" id="registerBtn">📝 Зарегистрироваться</button>
-                    
-                    <p style="text-align:center;margin-top:16px;color:var(--text-secondary);">
-                        Уже есть аккаунт? 
-                        <span style="color:var(--primary);cursor:pointer;font-weight:600;" onclick="showLogin()">Войти</span>
-                    </p>
-                `;
-                modal.style.display = 'flex';
-
-                document.getElementById('registerBtn').onclick = validateAndRegister;
-            }
-
-            function validateAndRegister() {
-                const firstName = document.getElementById('regFirstName').value.trim();
-                const lastName = document.getElementById('regLastName').value.trim();
-                const birthdate = document.getElementById('regBirthdate').value;
-                const email = document.getElementById('regEmail').value.trim();
-                const phone = document.getElementById('regPhone').value.trim().replace(/[\s\-\(\)]/g, '');
-                const termsAccepted = document.getElementById('acceptTerms').checked;
-
-                // Reset errors
-                document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
-
-                let valid = true;
-
-                if (!firstName || firstName.length < 2) {
-                    document.getElementById('errFirstName').classList.add('show');
-                    valid = false;
-                }
-                if (!lastName || lastName.length < 2) {
-                    document.getElementById('errLastName').classList.add('show');
-                    valid = false;
-                }
-                if (!birthdate) {
-                    document.getElementById('errBirthdate').textContent = '⚠️ Выберите дату рождения (минимум 16 лет)';
-                    document.getElementById('errBirthdate').classList.add('show');
-                    valid = false;
-                } else {
-                    const birth = new Date(birthdate);
-                    const today = new Date();
-                    let age = today.getFullYear() - birth.getFullYear();
-                    const m = today.getMonth() - birth.getMonth();
-                    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-                    if (age < 16) {
-                        document.getElementById('errBirthdate').textContent = `⚠️ Возраст: ${age} лет. Минимальный возраст — 16 лет`;
-                        document.getElementById('errBirthdate').classList.add('show');
-                        valid = false;
-                    }
-                    if (age > 100) {
-                        document.getElementById('errBirthdate').textContent = '⚠️ Некорректная дата рождения';
-                        document.getElementById('errBirthdate').classList.add('show');
-                        valid = false;
-                    }
-                }
-                if (!email || !email.includes('@') || !email.includes('.') || email.length < 5) {
-                    document.getElementById('errEmail').classList.add('show');
-                    valid = false;
-                }
-                if (!phone || phone.length < 10 || !/^\+?\d{10,12}$/.test(phone)) {
-                    document.getElementById('errPhone').classList.add('show');
-                    valid = false;
-                }
-                if (!termsAccepted) {
-                    document.getElementById('errTerms').classList.add('show');
-                    valid = false;
-                }
-
-                if (!valid) {
-                    showToast('⚠️ Исправьте ошибки в форме', 'warning');
-                    return;
-                }
-
-                // Registration successful
-                STATE.user = {
-                    firstName,
-                    lastName,
-                    birthdate,
-                    email,
-                    phone: phone.startsWith('+') ? phone : '+7' + phone.replace(/^8/, ''),
-                    balance: 0,
-                    registeredAt: new Date().toISOString()
-                };
-                STATE.isLogged = true;
-                localStorage.setItem('srv_user', JSON.stringify(STATE.user));
-                updateHeader();
-                document.getElementById('regModal').style.display = 'none';
-                initMap();
-                showToast('✅ Регистрация успешна! Добро пожаловать в SRV Courier', 'success');
-            }
-
-            window.showLogin = function() {
-                const email = prompt('📧 Введите email для входа:');
-                if (!email || !email.includes('@')) {
-                    showToast('❌ Введите корректный email', 'error');
-                    return;
-                }
-                const password = prompt('🔒 Введите пароль:');
-                if (!password || password.length < 3) {
-                    showToast('❌ Пароль должен содержать минимум 3 символа', 'error');
-                    return;
-                }
-                // Simulated login
-                STATE.user = {
-                    firstName: 'Курьер',
-                    lastName: 'SRV',
-                    email: email,
-                    phone: '+79991234567',
-                    balance: 780,
-                    registeredAt: new Date().toISOString()
-                };
-                STATE.isLogged = true;
-                localStorage.setItem('srv_user', JSON.stringify(STATE.user));
-                updateHeader();
-                document.getElementById('regModal').style.display = 'none';
-                initMap();
-                showToast('✅ Вход выполнен! Добро пожаловать.', 'success');
-            };
-
-            function logout() {
-                // Закрываем панель профиля
-                document.getElementById('profilePanel').classList.remove('visible');
+                const glowP = ctx.createRadialGradient(px, py, 10, px, py, 100);
+                glowP.addColorStop(0, 'rgba(255, 0, 255, 0.15)');
+                glowP.addColorStop(0.5, 'rgba(255, 0, 255, 0.05)');
+                glowP.addColorStop(1, 'rgba(255, 0, 255, 0)');
+                ctx.fillStyle = glowP;
+                ctx.beginPath();
+                ctx.arc(px, py, 100, 0, Math.PI * 2);
+                ctx.fill();
                 
-                // Показываем подтверждение
-                const confirmLogout = confirm('Вы уверены, что хотите выйти из аккаунта?\n\nВсе ваши активные заказы будут сброшены.');
+                ctx.shadowColor = '#ff00ff';
+                ctx.shadowBlur = 30;
                 
-                if (confirmLogout) {
-                    // Очищаем состояние
-                    STATE.user = null;
-                    STATE.isLogged = false;
-                    STATE.reservedOrders = [];
-                    STATE.activeOrders = [];
-                    
-                    // Очищаем localStorage
-                    localStorage.removeItem('srv_user');
-                    
-                    // Обновляем интерфейс
-                    updateHeader();
-                    updateTaskBadge();
-                    
-                    // Показываем уведомление
-                    showToast('👋 Вы вышли из аккаунта');
-                    
-                    // Показываем форму регистрации
-                    setTimeout(() => {
-                        showRegistration();
-                    }, 500);
-                }
+                const gradD = ctx.createRadialGradient(px, py + 10, 5, px, py + 20, 35);
+                gradD.addColorStop(0, '#ff69b4');
+                gradD.addColorStop(0.5, '#ff1493');
+                gradD.addColorStop(1, '#cc0066');
+                ctx.fillStyle = gradD;
+                ctx.beginPath();
+                ctx.moveTo(px - 22, py);
+                ctx.quadraticCurveTo(px - 38, py + 38, px - 12, py + 48);
+                ctx.lineTo(px + 12, py + 48);
+                ctx.quadraticCurveTo(px + 38, py + 38, px + 22, py);
+                ctx.fill();
+                
+                ctx.fillStyle = '#ffcc99';
+                ctx.shadowBlur = 15;
+                ctx.fillRect(px - 10, py - 24, 20, 24);
+                
+                ctx.shadowBlur = 20;
+                ctx.beginPath();
+                ctx.arc(px, py - 29, 13, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#ffd700';
+                ctx.shadowColor = '#ffd700';
+                ctx.shadowBlur = 20;
+                ctx.beginPath();
+                ctx.moveTo(px - 11, py - 36);
+                ctx.lineTo(px - 7, py - 46);
+                ctx.lineTo(px - 2, py - 39);
+                ctx.lineTo(px, py - 48);
+                ctx.lineTo(px + 2, py - 39);
+                ctx.lineTo(px + 7, py - 46);
+                ctx.lineTo(px + 11, py - 36);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(px - 4, py - 31, 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(px + 4, py - 31, 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(px, py - 26, 4, 0.1, Math.PI - 0.1);
+                ctx.stroke();
+                ctx.fillStyle = 'rgba(255, 100, 100, 0.2)';
+                ctx.beginPath();
+                ctx.arc(px - 8, py - 27, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(px + 8, py - 27, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#ff00ff';
+                ctx.font = '16px "Press Start 2P", system-ui';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = '#ff00ff';
+                ctx.shadowBlur = 30;
+                ctx.fillText('❤️ ГЮЛЬМИРА ❤️', px, py - 72);
+                ctx.shadowBlur = 0;
             }
 
-            function updateHeader() {
-                const avatar = document.getElementById('avatarLetter');
-                const name = document.getElementById('headerName');
-                if (STATE.user && STATE.user.firstName) {
-                    avatar.textContent = STATE.user.firstName[0].toUpperCase();
-                    name.textContent = STATE.user.firstName;
-                } else {
-                    avatar.textContent = '?';
-                    name.textContent = 'Гость';
+            if (princessAppeared && celebrationParticles.length > 0) {
+                for (let i = celebrationParticles.length - 1; i >= 0; i--) {
+                    const f = celebrationParticles[i];
+                    f.x += f.vx;
+                    f.y += f.vy;
+                    f.vy += f.gravity || 0.05;
+                    f.life--;
+                    if (f.life <= 0) {
+                        celebrationParticles.splice(i, 1);
+                        continue;
+                    }
+                    ctx.globalAlpha = Math.min(1, f.life / 20);
+                    ctx.fillStyle = f.color;
+                    ctx.shadowColor = f.color;
+                    ctx.shadowBlur = 15;
+                    ctx.beginPath();
+                    ctx.arc(f.x, f.y, f.size * (f.life / 40), 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
                 }
+                ctx.globalAlpha = 1;
             }
+            
+            if (gameState === 'playing' && gameStarted && !gameOverTriggered) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 4]);
+                ctx.beginPath();
+                ctx.arc(mouse.x, mouse.y, 15, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.strokeStyle = 'rgba(255, 0, 255, 0.3)';
+                ctx.lineWidth = 1.5;
+                const s = 6;
+                ctx.beginPath();
+                ctx.moveTo(mouse.x - s, mouse.y);
+                ctx.lineTo(mouse.x + s, mouse.y);
+                ctx.moveTo(mouse.x, mouse.y - s);
+                ctx.lineTo(mouse.x, mouse.y + s);
+                ctx.stroke();
+            }
+        }
 
-            window.handleUserBadgeClick = function() {
-                if (STATE.user) {
-                    showProfilePanel();
-                } else {
-                    showRegistration();
-                }
-            };
-
-            // ==================== FLOATING BUTTONS ====================
-            document.getElementById('autoAssignBtn').addEventListener('click', () => {
-                if (!STATE.user) {
-                    showToast('⚠️ Сначала зарегистрируйтесь!', 'warning');
-                    showRegistration();
-                    return;
-                }
-                if (STATE.orders.length > 0) {
-                    const nearest = STATE.orders.reduce((prev, curr) =>
-                        parseFloat(curr.distance) < parseFloat(prev.distance) ? curr : prev
-                    );
-                    openOrderModal(nearest);
-                } else {
-                    showToast('Нет доступных заказов. Обновите карту.', 'warning');
-                }
+        window.onload = function() {
+            initCanvas();
+            resizeCanvas();
+            
+            document.getElementById('sound-slider').value = volume;
+            document.getElementById('volume-label').textContent = Math.round(volume * 100) + '%';
+            
+            preloadDiv.style.display = 'flex';
+            menuDiv.style.display = 'none';
+            settingsDiv.style.display = 'none';
+            gameDiv.style.display = 'none';
+            winDiv.style.display = 'none';
+            gameState = 'preload';
+            
+            window.addEventListener('resize', resizeCanvas);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(resizeCanvas, 300);
             });
+        };
 
-            document.getElementById('refreshMapBtn').addEventListener('click', () => {
-                STATE.orders = generateEderbentOrders();
-                renderOrdersOnMap();
-                showToast('🔄 Заказы обновлены!', 'success');
-            });
-
-            // ==================== CLOSE MODALS ====================
-            window.addEventListener('click', (e) => {
-                if (e.target.id === 'orderModal') {
-                    document.getElementById('orderModal').style.display = 'none';
-                }
-                if (e.target.id === 'regModal') {
-                    // Не закрываем регистрацию при клике вне, если пользователь не залогинен
-                    if (STATE.isLogged) {
-                        document.getElementById('regModal').style.display = 'none';
-                    }
-                }
-            });
-
-            // ==================== INITIALIZATION ====================
-            window.onload = function() {
-                // Restore user
-                const savedUser = localStorage.getItem('srv_user');
-                if (savedUser) {
-                    try {
-                        STATE.user = JSON.parse(savedUser);
-                        STATE.isLogged = true;
-                        updateHeader();
-                    } catch (e) {
-                        localStorage.removeItem('srv_user');
-                    }
-                }
-
-                // Apply theme
-                if (STATE.theme === 'dark') {
-                    document.body.classList.add('dark-theme');
-                }
-
-                // Initialize map with orders visible immediately
-                initMap();
-
-                // Show registration only if not logged in (but orders are visible)
-                if (!STATE.isLogged) {
-                    // Показываем регистрацию с небольшой задержкой
-                    setTimeout(() => {
-                        showRegistration();
-                    }, 1500);
-                }
-            };
-        })();
+        console.log('💖 Игра для Гюльмиры готова! ❤️');
+        console.log('🎮 Просто тапай по экрану и стреляй в зомби!');
     </script>
 </body>
 </html>

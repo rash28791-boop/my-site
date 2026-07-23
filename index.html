@@ -499,12 +499,65 @@
         }
 
         .message-image {
-            max-width: 200px;
-            max-height: 200px;
+            max-width: 220px;
+            max-height: 220px;
             border-radius: 16px;
             margin-bottom: 6px;
             cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            object-fit: cover;
+        }
+
+        .message-image:active {
+            transform: scale(0.95);
+            border-color: rgba(0, 180, 255, 0.6);
+        }
+
+        .image-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-viewer.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .image-viewer img {
+            max-width: 95%;
+            max-height: 85vh;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .image-viewer-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 101;
         }
 
         .image-caption {
@@ -951,6 +1004,11 @@
         <div class="bg-orb"></div>
     </div>
 
+    <div class="image-viewer" id="imageViewer">
+        <button class="image-viewer-close" id="imageViewerClose">✕</button>
+        <img src="" alt="Просмотр фото" id="imageViewerImg">
+    </div>
+
     <div class="phone-frame" id="phoneFrame">
         <div class="lock-screen" id="lockScreen">
             <div class="particles-container" id="particlesContainer"></div>
@@ -972,7 +1030,7 @@
                     <div class="chat-title">🧠 AI Бот</div>
                 </div>
                 <div class="header-right">
-                    <button class="icon-btn" id="memoryBtn" aria-label="Память" title="Память диалога">🧠</button>
+                    <button class="icon-btn" id="memoryBtn" aria-label="Память">🧠</button>
                     <button class="icon-btn" id="clearChatBtn" aria-label="Очистить">🗑️</button>
                     <button class="icon-btn" id="settingsIcon" aria-label="Настройки">⚙️</button>
                 </div>
@@ -982,17 +1040,18 @@
                 <div class="message-bubble system">🤖 Нейросеть активирована</div>
                 <div class="message-bubble ai">
                     👋 Привет! Я AI-бот.
-                    ✨ Мои возможности:
+                    ✨ Возможности:
                     • 🔍 Поиск в интернете
                     • 🖼️ Распознавание фото
                     • 🧠 Память диалога
-                    • 📚 Умные ответы
-                    Задай вопрос или отправь фото!
+                    • 🧮 Решение примеров
+                    • 📚 База знаний
+                    Задай вопрос!
                 </div>
             </div>
 
             <div class="input-area">
-                <button class="attach-btn" id="attachBtn" aria-label="Прикрепить фото">📎</button>
+                <button class="attach-btn" id="attachBtn" aria-label="Фото">📎</button>
                 <input type="text" class="message-input" id="messageInput" placeholder="Спроси что-нибудь..." autocomplete="off" maxlength="500">
                 <button class="send-btn" id="sendBtn">➤</button>
             </div>
@@ -1055,6 +1114,14 @@
             var CORRECT_PASSWORD = '1394';
             var WIKIPEDIA_API = 'https://ru.wikipedia.org/w/api.php';
             var DUCKDUCKGO_API = 'https://api.duckduckgo.com/';
+            var STORAGE_KEY = 'aiBotSettingsV5';
+            var MEMORY_KEY = 'aiMemoryV5';
+            var FACTS_KEY = 'aiFactsV5';
+            var MAX_MEMORY = 100;
+            var MAX_STORAGE_MEMORY = 50;
+            var THINK_MIN = 600;
+            var THINK_MAX = 2000;
+            var IMAGE_MAX_SIZE = 30 * 1024 * 1024;
 
             var lockScreen = document.getElementById('lockScreen');
             var lockIcon = document.getElementById('lockIcon');
@@ -1079,12 +1146,17 @@
             var visionToggle = document.getElementById('visionToggle');
             var attachBtn = document.getElementById('attachBtn');
             var fileInput = document.getElementById('fileInput');
+            var imageViewer = document.getElementById('imageViewer');
+            var imageViewerImg = document.getElementById('imageViewerImg');
+            var imageViewerClose = document.getElementById('imageViewerClose');
 
             var isLocked = true;
             var isProcessingUnlock = false;
             var isProcessingMessage = false;
+            var isDestroyed = false;
             var particles = [];
             var toastTimer;
+            var thinkingTimer = null;
             var conversationMemory = [];
             var userFacts = [];
 
@@ -1098,14 +1170,27 @@
             var knowledgeBase = {
                 'привет': 'Привет! Рад тебя видеть! Чем могу помочь?',
                 'здравствуй': 'Здравствуй! Задавай любой вопрос.',
+                'добрый день': 'Добрый день! Как твои дела?',
+                'доброе утро': 'Доброе утро! Прекрасный день!',
+                'добрый вечер': 'Добрый вечер! Как прошёл день?',
+                'hello': 'Hello! How can I help you?',
+                'hi': 'Hi there! What can I do for you?',
                 'как дела': 'У меня всё отлично! А как твои дела?',
-                'что ты умеешь': '🌟 Мои возможности:\n\n🔍 Поиск в интернете (Wikipedia + DuckDuckGo)\n🖼️ Анализ фотографий\n🧠 Память диалога\n📚 Умные ответы\n\nЧто тебя интересует?',
-                'кто ты': 'Я AI-бот с доступом к интернету и распознаванием фото. Могу искать информацию, анализировать изображения и помнить контекст разговора.',
+                'что ты умеешь': '🌟 МОИ ВОЗМОЖНОСТИ:\n\n🔍 Поиск в интернете\n🖼️ Анализ фото\n🧠 Память диалога\n🧮 Решение примеров\n📚 База знаний\n💡 Логические рассуждения\n\nЧто интересует?',
+                'кто ты': 'Я AI-бот с доступом к интернету, распознаванием фото и памятью диалога.',
+                'расскажи о себе': 'Я AI-бот. Могу искать информацию, анализировать фото, решать примеры и помнить контекст.',
                 'пока': 'До встречи! 😊',
-                'спасибо': 'Всегда пожалуйста! 🤗'
+                'до свидания': 'До свидания! Возвращайся!',
+                'спасибо': 'Всегда пожалуйста! 🤗',
+                'благодарю': 'Не за что! Обращайся.',
+                'помоги': 'Конечно! Расскажи подробнее, с чем нужна помощь.',
+                'объясни': 'С удовольствием объясню! Уточни тему.',
+                'столица россии': 'Столица России — Москва! 🏛️\nНаселение: 13+ млн\nОснована: 1147 год',
+                'земля': 'Земля — третья планета от Солнца! 🌍\nДиаметр: 12 742 км\nВозраст: 4,54 млрд лет',
+                'солнце': 'Солнце — звезда в центре системы! ☀️\nТемпература ядра: 15 млн °C\nРасстояние: 150 млн км',
+                'луна': 'Луна — спутник Земли! 🌙\nРасстояние: 384 400 км\nДиаметр: 3 474 км',
             };
 
-            // Вспомогательные функции
             function padNumber(num) {
                 return num < 10 ? '0' + num : '' + num;
             }
@@ -1114,17 +1199,54 @@
                 return typeof num === 'number' && isFinite(num) && Math.floor(num) === num;
             }
 
+            function safeSetTimeout(callback, delay) {
+                if (isDestroyed) return null;
+                return setTimeout(function() {
+                    if (!isDestroyed) {
+                        callback();
+                    }
+                }, delay);
+            }
+
+            function think(callback, minDelay, maxDelay) {
+                if (isDestroyed) return;
+                minDelay = minDelay || THINK_MIN;
+                maxDelay = maxDelay || THINK_MAX;
+                var delay = minDelay + Math.random() * (maxDelay - minDelay);
+                clearTimeout(thinkingTimer);
+                thinkingTimer = safeSetTimeout(callback, delay);
+            }
+
             function showToast(message, duration) {
+                if (isDestroyed) return;
                 duration = duration || 2000;
+                if (!toast) return;
                 toast.textContent = message;
                 toast.classList.add('show');
                 clearTimeout(toastTimer);
-                toastTimer = setTimeout(function() {
-                    toast.classList.remove('show');
+                toastTimer = safeSetTimeout(function() {
+                    if (toast) toast.classList.remove('show');
                 }, duration);
             }
 
+            function finishProcessing() {
+                if (isDestroyed) return;
+                isProcessingMessage = false;
+                if (sendBtn) sendBtn.disabled = false;
+                if (messageInput) messageInput.focus();
+                saveMemory();
+            }
+
+            function saveMemory() {
+                if (isDestroyed || !settings.memoryEnabled) return;
+                try {
+                    localStorage.setItem(MEMORY_KEY, JSON.stringify(conversationMemory.slice(-MAX_STORAGE_MEMORY)));
+                    localStorage.setItem(FACTS_KEY, JSON.stringify(userFacts));
+                } catch (e) {}
+            }
+
             function createParticles() {
+                if (isDestroyed || !particlesContainer) return;
                 var fragment = document.createDocumentFragment();
                 var colors = [
                     'rgba(0, 180, 255, 0.5)',
@@ -1160,29 +1282,44 @@
                 particles = [];
             }
 
+            function openImageViewer(imageUrl) {
+                if (!imageViewer || !imageViewerImg) return;
+                imageViewerImg.src = imageUrl;
+                imageViewer.classList.add('open');
+            }
+
+            function closeImageViewer() {
+                if (!imageViewer || !imageViewerImg) return;
+                imageViewer.classList.remove('open');
+                setTimeout(function() {
+                    if (imageViewerImg) imageViewerImg.src = '';
+                }, 300);
+            }
+
             function checkPassword() {
                 if (isProcessingUnlock || !isLocked) return;
+                if (!passwordInput) return;
 
                 if (passwordInput.value.trim() === CORRECT_PASSWORD) {
                     isProcessingUnlock = true;
-                    unlockBtn.disabled = true;
-                    lockScreen.classList.add('unlocked');
+                    if (unlockBtn) unlockBtn.disabled = true;
+                    if (lockScreen) lockScreen.classList.add('unlocked');
                     isLocked = false;
                     passwordInput.value = '';
                     passwordInput.classList.remove('error');
 
-                    setTimeout(function() {
+                    safeSetTimeout(function() {
                         isProcessingUnlock = false;
-                        unlockBtn.disabled = false;
-                        messageInput.focus();
+                        if (unlockBtn) unlockBtn.disabled = false;
+                        if (messageInput) messageInput.focus();
                     }, 500);
                 } else {
-                    lockIcon.classList.add('shake');
+                    if (lockIcon) lockIcon.classList.add('shake');
                     passwordInput.classList.add('error');
                     passwordInput.value = '';
                     passwordInput.placeholder = 'Неверный пароль';
-                    setTimeout(function() {
-                        lockIcon.classList.remove('shake');
+                    safeSetTimeout(function() {
+                        if (lockIcon) lockIcon.classList.remove('shake');
                         passwordInput.classList.remove('error');
                         passwordInput.placeholder = 'Введите пароль';
                     }, 500);
@@ -1192,12 +1329,16 @@
             function lockChat() {
                 if (isLocked) return;
                 isLocked = true;
-                lockScreen.classList.remove('unlocked');
-                passwordInput.value = '';
-                passwordInput.classList.remove('error');
-                passwordInput.placeholder = 'Введите пароль';
+                if (lockScreen) lockScreen.classList.remove('unlocked');
+                if (passwordInput) {
+                    passwordInput.value = '';
+                    passwordInput.classList.remove('error');
+                    passwordInput.placeholder = 'Введите пароль';
+                }
                 closeSettings();
-                setTimeout(function() { passwordInput.focus(); }, 300);
+                safeSetTimeout(function() {
+                    if (passwordInput) passwordInput.focus();
+                }, 300);
             }
 
             function showMemory() {
@@ -1207,13 +1348,13 @@
                 }
 
                 var summary = '🧠 ПАМЯТЬ ДИАЛОГА:\n\n';
-                var lastMessages = conversationMemory.slice(-10);
+                var lastMessages = conversationMemory.slice(-15);
 
                 for (var i = 0; i < lastMessages.length; i++) {
                     var role = lastMessages[i].role === 'user' ? '👤 Вы' : '🤖 AI';
                     var content = lastMessages[i].content;
-                    if (content.length > 60) {
-                        content = content.substring(0, 60) + '...';
+                    if (content.length > 50) {
+                        content = content.substring(0, 50) + '...';
                     }
                     summary += role + ': ' + content + '\n';
                 }
@@ -1225,11 +1366,12 @@
                     }
                 }
 
-                summary += '\n💾 Всего сообщений: ' + conversationMemory.length;
+                summary += '\n💾 Сообщений: ' + conversationMemory.length;
                 addMessage(summary, 'ai');
             }
 
             function clearChat() {
+                if (!messagesContainer) return;
                 var messages = messagesContainer.querySelectorAll('.message-bubble:not(.system)');
                 for (var i = messages.length - 1; i >= 0; i--) {
                     if (messages[i].parentNode) {
@@ -1238,11 +1380,13 @@
                 }
                 conversationMemory = [];
                 userFacts = [];
-                addMessage('👋 Диалог очищен. Задай вопрос или отправь фото!', 'ai');
+                addMessage('👋 Диалог очищен. Задай вопрос!', 'ai');
                 showToast('🗑️ Чат очищен');
+                saveMemory();
             }
 
             function addMessage(text, type, imageUrl) {
+                if (!messagesContainer) return null;
                 type = type || 'sent';
                 imageUrl = imageUrl || null;
 
@@ -1257,10 +1401,7 @@
                     img.src = imageUrl;
                     img.classList.add('message-image');
                     img.onclick = function() {
-                        var win = window.open('', '_blank');
-                        if (win) {
-                            win.document.write('<img src="' + imageUrl + '" style="max-width:100%;height:auto;" />');
-                        }
+                        openImageViewer(imageUrl);
                     };
                     msgDiv.appendChild(img);
 
@@ -1286,15 +1427,25 @@
 
                 messagesContainer.appendChild(msgDiv);
                 requestAnimationFrame(function() {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    if (messagesContainer) {
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }
                 });
                 return msgDiv;
             }
 
             function addLoadingMessage() {
+                if (!messagesContainer) return null;
                 var msgDiv = document.createElement('div');
                 msgDiv.classList.add('message-bubble', 'ai', 'loading');
                 msgDiv.id = 'loadingMessage';
+
+                var thinkText = document.createElement('div');
+                thinkText.textContent = '💭 Думаю...';
+                thinkText.style.fontSize = '12px';
+                thinkText.style.marginBottom = '4px';
+                thinkText.style.opacity = '0.6';
+                msgDiv.appendChild(thinkText);
 
                 var indicator = document.createElement('div');
                 indicator.classList.add('typing-indicator');
@@ -1307,7 +1458,9 @@
                 msgDiv.appendChild(indicator);
                 messagesContainer.appendChild(msgDiv);
                 requestAnimationFrame(function() {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    if (messagesContainer) {
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }
                 });
                 return msgDiv;
             }
@@ -1319,26 +1472,22 @@
                 }
             }
 
-            // Поиск в интернете
             async function searchWikipedia(query) {
                 try {
                     var url = WIKIPEDIA_API + '?action=query&list=search&srsearch=' + encodeURIComponent(query) + '&format=json&origin=*&srlimit=5';
                     var response = await fetch(url);
                     if (!response.ok) return null;
-
                     var data = await response.json();
 
                     if (data.query && data.query.search && data.query.search.length > 0) {
                         var results = data.query.search;
                         var answer = '🔍 Wikipedia:\n\n';
-
                         for (var i = 0; i < Math.min(results.length, 3); i++) {
                             var snippet = results[i].snippet.replace(/<\/?[^>]+(>|$)/g, '').trim();
                             if (snippet.length > 20) {
                                 answer += '📌 ' + results[i].title + '\n' + snippet.substring(0, 200) + '...\n\n';
                             }
                         }
-
                         return answer;
                     }
                     return null;
@@ -1352,13 +1501,11 @@
                     var url = DUCKDUCKGO_API + '?q=' + encodeURIComponent(query) + '&format=json&no_html=1';
                     var response = await fetch(url);
                     if (!response.ok) return null;
-
                     var data = await response.json();
 
                     if (data.AbstractText && data.AbstractText.length > 15) {
                         return '🔍 ' + data.AbstractText + '\n\n🌐 DuckDuckGo';
                     }
-
                     if (data.RelatedTopics && data.RelatedTopics.length > 0) {
                         for (var i = 0; i < Math.min(data.RelatedTopics.length, 3); i++) {
                             var topic = data.RelatedTopics[i];
@@ -1367,18 +1514,24 @@
                             }
                         }
                     }
-
                     return null;
                 } catch (e) {
                     return null;
                 }
             }
 
-            // Распознавание фото
             function analyzeImage(imageUrl) {
                 return new Promise(function(resolve) {
                     var img = new Image();
                     img.crossOrigin = 'anonymous';
+                    var resolved = false;
+
+                    function safeResolve(data) {
+                        if (!resolved) {
+                            resolved = true;
+                            resolve(data);
+                        }
+                    }
 
                     img.onload = function() {
                         var width = img.width;
@@ -1393,8 +1546,7 @@
                             var canvas = document.createElement('canvas');
                             var ctx = canvas.getContext('2d');
                             if (!ctx) {
-                                analysis += '\n⚠️ Анализ недоступен\n';
-                                resolve(analysis);
+                                safeResolve(analysis + '\n⚠️ Анализ недоступен');
                                 return;
                             }
 
@@ -1406,14 +1558,12 @@
                             try {
                                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                             } catch (drawError) {
-                                analysis += '\n⚠️ Нет доступа к данным фото\n';
-                                resolve(analysis);
+                                safeResolve(analysis + '\n⚠️ Нет доступа к данным');
                                 return;
                             }
 
                             var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                             var data = imageData.data;
-
                             var totalR = 0, totalG = 0, totalB = 0;
                             var pixelCount = data.length / 4;
 
@@ -1432,58 +1582,69 @@
 
                             if (avgBrightness > 200) analysis += '💡 Очень светлое\n';
                             else if (avgBrightness > 150) analysis += '💡 Светлое\n';
-                            else if (avgBrightness > 100) analysis += '🌓 Средней яркости\n';
+                            else if (avgBrightness > 100) analysis += '🌓 Среднее\n';
                             else if (avgBrightness > 50) analysis += '🌑 Тёмное\n';
                             else analysis += '⚫ Очень тёмное\n';
 
-                            var maxRGB = Math.max(avgR, avgG, avgB);
-                            var minRGB = Math.min(avgR, avgG, avgB);
-                            var saturation = maxRGB === 0 ? 0 : (maxRGB - minRGB) / maxRGB;
+                            if (ratio > 2.0) analysis += '\n📱 Панорама/скриншот\n';
+                            else if (ratio > 1.4) analysis += '\n🖼️ Широкоформатное\n';
+                            else if (ratio > 1.1) analysis += '\n📷 Стандартное\n';
+                            else if (ratio > 0.9) analysis += '\n⬜ Квадратное\n';
+                            else if (ratio > 0.7) analysis += '\n📱 Портретное\n';
+                            else analysis += '\n📱 Высокое\n';
 
-                            if (saturation < 0.15) analysis += '⬜ Цвета приглушённые\n';
-                            else if (saturation < 0.35) analysis += '🎨 Умеренные цвета\n';
-                            else analysis += '🌈 Насыщенные цвета\n';
+                            analysis += '\n💡 ПРЕДПОЛОЖЕНИЯ:\n';
+                            if (avgBrightness > 180) analysis += '• Возможно: документ\n';
+                            else if (avgBrightness > 150) analysis += '• Возможно: дневное фото\n';
+                            else if (avgBrightness < 80) analysis += '• Возможно: ночное фото\n';
+                            if (ratio > 1.8 || ratio < 0.6) analysis += '• Возможно: скриншот\n';
+                            analysis += '\n📝 Расскажи подробнее!';
 
-                            if (avgR > avgG + 30 && avgR > avgB + 30) analysis += '🔴 Доминирует красный\n';
-                            else if (avgG > avgR + 30 && avgG > avgB + 30) analysis += '🟢 Доминирует зелёный\n';
-                            else if (avgB > avgR + 30 && avgB > avgG + 30) analysis += '🔵 Доминирует синий\n';
-
+                            safeResolve(analysis);
                         } catch (e) {
-                            analysis += '\n⚠️ Частичный анализ\n';
+                            safeResolve(analysis + '\n⚠️ Частичный анализ');
                         }
-
-                        if (ratio > 2.0) analysis += '\n📱 Панорама/скриншот\n';
-                        else if (ratio > 1.4) analysis += '\n🖼️ Широкоформатное\n';
-                        else if (ratio > 1.1) analysis += '\n📷 Стандартное фото\n';
-                        else if (ratio > 0.9) analysis += '\n⬜ Квадратное\n';
-                        else if (ratio > 0.7) analysis += '\n📱 Портретное\n';
-                        else analysis += '\n📱 Высокое (скриншот)\n';
-
-                        analysis += '\n💡 ПРЕДПОЛОЖЕНИЯ:\n';
-
-                        if (avgBrightness > 180 && saturation < 0.2) {
-                            analysis += '• Документ или скриншот\n';
-                        } else if (avgBrightness > 150 && saturation > 0.3) {
-                            analysis += '• Пейзаж или дневное фото\n';
-                        } else if (avgBrightness < 80) {
-                            analysis += '• Ночное или тёмное фото\n';
-                        }
-
-                        if (ratio > 1.8 || ratio < 0.6) {
-                            analysis += '• Скриншот телефона\n';
-                        }
-
-                        analysis += '\n📝 Расскажи подробнее, что на фото!';
-
-                        resolve(analysis);
                     };
 
                     img.onerror = function() {
-                        resolve('🖼️ Фото получено! Расскажи, что на нём изображено.');
+                        safeResolve('🖼️ Фото получено! Расскажи, что на нём.');
                     };
 
                     img.src = imageUrl;
                 });
+            }
+
+            function solveMath(msg) {
+                var cleanMsg = msg.toLowerCase().replace(/\s/g, '');
+                cleanMsg = cleanMsg.replace(/умножитьна|умножить|×|х/g, '*');
+                cleanMsg = cleanMsg.replace(/разделитьна|разделить|поделитьна|поделить|÷/g, '/');
+                cleanMsg = cleanMsg.replace(/плюс/g, '+');
+                cleanMsg = cleanMsg.replace(/минус/g, '-');
+
+                var mathMatch = cleanMsg.match(/[\d\+\-\*\/\(\)\.\,]+/);
+                if (mathMatch && /[\+\-\*\/]/.test(mathMatch[0]) && mathMatch[0].length > 2) {
+                    try {
+                        var expression = mathMatch[0].replace(/,/g, '.');
+                        var result = eval(expression);
+                        if (isFinite(result) && !isNaN(result)) {
+                            var roundedResult = isInteger(result) ? result : parseFloat(result.toFixed(6));
+                            return '🧮 ' + expression.replace(/\*/g, '×').replace(/\//g, '÷') + ' = ' + roundedResult;
+                        }
+                    } catch (e) {}
+                }
+
+                var howMuchMatch = msg.match(/сколько\s+будет\s+([\d\s\+\-\*\/\(\)\.\,]+)/i);
+                if (howMuchMatch) {
+                    try {
+                        var expr = howMuchMatch[1].replace(/\s/g, '').replace(/,/g, '.');
+                        var res = eval(expr);
+                        if (isFinite(res) && !isNaN(res)) {
+                            return '🧮 ' + howMuchMatch[1] + ' = ' + (isInteger(res) ? res : parseFloat(res.toFixed(6)));
+                        }
+                    } catch (e) {}
+                }
+
+                return null;
             }
 
             function generateSmartResponse(userMessage) {
@@ -1502,31 +1663,23 @@
                         var name = nameMatch[1] || nameMatch[2];
                         if (name && name.length > 1) {
                             userFacts.push('Имя: ' + name);
-                            return 'Приятно познакомиться, ' + name + '! 😊 Я запомнил.';
+                            return 'Приятно познакомиться, ' + name + '! 😊';
                         }
                     }
                 }
 
-                if (msg.indexOf('я из') !== -1 || msg.indexOf('живу в') !== -1 || msg.indexOf('город') !== -1) {
-                    var cityMatch = msg.match(/(?:из|в|город)\s+([А-ЯA-Z]\w+)/i);
+                if (msg.indexOf('я из') !== -1 || msg.indexOf('живу в') !== -1) {
+                    var cityMatch = msg.match(/(?:из|в)\s+([А-ЯA-Z]\w+)/i);
                     if (cityMatch && cityMatch[1]) {
                         userFacts.push('Город: ' + cityMatch[1]);
                         return 'Запомнил! ' + cityMatch[1] + ' — отличный город.';
                     }
                 }
 
-                var cleanMsg = msg.replace(/\s/g, '');
-                if (/^[\d\+\-\*\/\(\)\.\,]+$/.test(cleanMsg) && /[\+\-\*\/]/.test(cleanMsg)) {
-                    try {
-                        var result = eval(cleanMsg);
-                        if (isFinite(result) && !isNaN(result)) {
-                            var roundedResult = isInteger(result) ? result : parseFloat(result.toFixed(6));
-                            return '🧮 ' + msg + ' = ' + roundedResult;
-                        }
-                    } catch (e) {}
-                }
+                var mathResult = solveMath(userMessage);
+                if (mathResult) return mathResult;
 
-                if (msg.indexOf('время') !== -1 || msg.indexOf('дата') !== -1 || msg.indexOf('число') !== -1) {
+                if (msg.indexOf('время') !== -1 || msg.indexOf('дата') !== -1 || msg.indexOf('число') !== -1 || msg.indexOf('какой сегодня') !== -1 || msg.indexOf('который час') !== -1) {
                     var now = new Date();
                     var days = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
                     var months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
@@ -1534,28 +1687,39 @@
                 }
 
                 if (msg.indexOf('погода') !== -1) {
-                    return '🌤 Напиши "Погода в [город]" и я поищу информацию!';
+                    return '🌤 Уточни город! Напиши: "Погода в Москве"';
+                }
+
+                if (msg.indexOf('почему') !== -1 || msg.indexOf('зачем') !== -1 || msg.indexOf('как работает') !== -1) {
+                    return '🤔 Ищу информацию по теме: "' + userMessage.substring(0, 80) + '"';
                 }
 
                 return null;
             }
 
-            function generateContextualResponse() {
+            function generateContextualResponse(userMessage) {
                 if (!settings.memoryEnabled || conversationMemory.length < 3) return null;
+                var msg = userMessage.toLowerCase();
+
+                if (msg.indexOf('да') !== -1 || msg.indexOf('конечно') !== -1) {
+                    return 'Отлично! Продолжаем. Что ещё интересует?';
+                }
+                if (msg.indexOf('нет') !== -1 || msg.indexOf('не то') !== -1) {
+                    return 'Понял! Давай сменим тему. О чём хочешь поговорить?';
+                }
 
                 var responses = [
-                    'Учитывая наш разговор, давай продолжим! Что именно тебя интересует?',
-                    'Я помню контекст. Могу развить тему или перейти к новому вопросу.',
-                    'Исходя из истории диалога, предлагаю углубиться в тему. Что скажешь?'
+                    'Учитывая наш разговор, давай продолжим!',
+                    'Я помню контекст. Что ещё интересует?',
+                    'Исходя из истории диалога, предлагаю углубиться.'
                 ];
-
                 return responses[Math.floor(Math.random() * responses.length)];
             }
 
             async function processMessage(userMessage, isImage, imageUrl) {
-                if (isProcessingMessage) return;
+                if (isProcessingMessage || isDestroyed) return;
                 isProcessingMessage = true;
-                sendBtn.disabled = true;
+                if (sendBtn) sendBtn.disabled = true;
                 isImage = isImage || false;
                 imageUrl = imageUrl || null;
 
@@ -1567,9 +1731,14 @@
                         addLoadingMessage();
                         try {
                             var analysis = await analyzeImage(imageUrl);
-                            removeLoadingMessage();
-                            addMessage(analysis, 'ai');
-                            conversationMemory.push({ role: 'assistant', content: analysis });
+                            think(function() {
+                                removeLoadingMessage();
+                                addMessage(analysis, 'ai');
+                                conversationMemory.push({ role: 'assistant', content: analysis });
+                                trimMemory();
+                                finishProcessing();
+                            });
+                            return;
                         } catch (e) {
                             removeLoadingMessage();
                             addMessage('❌ Не удалось проанализировать фото.', 'ai');
@@ -1580,11 +1749,7 @@
                 } else {
                     addMessage(userMessage, 'sent');
                     conversationMemory.push({ role: 'user', content: userMessage });
-
-                    if (conversationMemory.length > 100) {
-                        conversationMemory = conversationMemory.slice(-100);
-                    }
-
+                    trimMemory();
                     addLoadingMessage();
 
                     var response = generateSmartResponse(userMessage);
@@ -1600,40 +1765,41 @@
                     }
 
                     if (!response) {
-                        response = generateContextualResponse();
+                        response = generateContextualResponse(userMessage);
                     }
 
                     if (!response) {
                         var fallbacks = [
-                            'Интересно! Расскажи подробнее, я помогу разобраться.',
-                            'Я могу поискать информацию. Что конкретно ты хочешь узнать?',
-                            'Хороший вопрос! Давай уточним детали для более точного ответа.'
+                            '💡 Интересно! Расскажи подробнее.',
+                            '🤔 Я могу поискать информацию. Что конкретно интересует?',
+                            '📚 Хороший вопрос! Давай уточним детали.',
+                            '🧠 Я проанализировал запрос. Что выберешь?'
                         ];
                         response = fallbacks[Math.floor(Math.random() * fallbacks.length)];
                     }
 
-                    removeLoadingMessage();
-                    addMessage(response, 'ai');
-                    conversationMemory.push({ role: 'assistant', content: response });
+                    think(function() {
+                        removeLoadingMessage();
+                        addMessage(response, 'ai');
+                        conversationMemory.push({ role: 'assistant', content: response });
+                        trimMemory();
+                        finishProcessing();
+                    });
+                    return;
                 }
 
-                if (conversationMemory.length > 100) {
-                    conversationMemory = conversationMemory.slice(-100);
-                }
+                trimMemory();
+                finishProcessing();
+            }
 
-                isProcessingMessage = false;
-                sendBtn.disabled = false;
-                messageInput.focus();
-
-                if (settings.memoryEnabled) {
-                    try {
-                        localStorage.setItem('aiMemory', JSON.stringify(conversationMemory.slice(-50)));
-                        localStorage.setItem('aiFacts', JSON.stringify(userFacts));
-                    } catch (e) {}
+            function trimMemory() {
+                if (conversationMemory.length > MAX_MEMORY) {
+                    conversationMemory = conversationMemory.slice(-MAX_MEMORY);
                 }
             }
 
             function sendMessage() {
+                if (!messageInput) return;
                 var text = messageInput.value.trim();
                 if (!text || isProcessingMessage) return;
                 messageInput.value = '';
@@ -1641,6 +1807,11 @@
             }
 
             function handleFileSelect(event) {
+                if (isProcessingMessage) {
+                    fileInput.value = '';
+                    showToast('⚠️ Подождите, идёт обработка');
+                    return;
+                }
                 var file = event.target.files[0];
                 if (!file) return;
 
@@ -1650,7 +1821,7 @@
                     return;
                 }
 
-                if (file.size > 30 * 1024 * 1024) {
+                if (file.size > IMAGE_MAX_SIZE) {
                     showToast('⚠️ Максимум 30MB');
                     fileInput.value = '';
                     return;
@@ -1672,24 +1843,26 @@
             }
 
             function openSettings() {
-                settingsModal.classList.add('open');
-                settingsOverlay.classList.add('visible');
+                if (settingsModal) settingsModal.classList.add('open');
+                if (settingsOverlay) settingsOverlay.classList.add('visible');
             }
 
             function closeSettings() {
-                settingsModal.classList.remove('open');
-                settingsOverlay.classList.remove('visible');
-                settings.searchEnabled = searchToggle.checked;
-                settings.memoryEnabled = memoryToggle.checked;
-                settings.visionEnabled = visionToggle.checked;
+                if (settingsModal) settingsModal.classList.remove('open');
+                if (settingsOverlay) settingsOverlay.classList.remove('visible');
+                if (searchToggle) settings.searchEnabled = searchToggle.checked;
+                if (memoryToggle) settings.memoryEnabled = memoryToggle.checked;
+                if (visionToggle) settings.visionEnabled = visionToggle.checked;
                 saveSettings();
             }
 
             function applyTheme(theme) {
                 settings.theme = theme;
-                phoneFrame.className = 'phone-frame';
-                if (theme === 'light') {
-                    phoneFrame.classList.add('theme-light');
+                if (phoneFrame) {
+                    phoneFrame.className = 'phone-frame';
+                    if (theme === 'light') {
+                        phoneFrame.classList.add('theme-light');
+                    }
                 }
 
                 for (var i = 0; i < themeButtons.length; i++) {
@@ -1707,40 +1880,42 @@
 
             function saveSettings() {
                 try {
-                    localStorage.setItem('aiBotSettingsV3', JSON.stringify(settings));
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
                 } catch (e) {}
             }
 
             function loadSettings() {
                 try {
-                    var saved = localStorage.getItem('aiBotSettingsV3');
+                    var saved = localStorage.getItem(STORAGE_KEY);
                     if (saved) {
                         var parsed = JSON.parse(saved);
                         if (parsed.theme) settings.theme = parsed.theme;
                         if (typeof parsed.searchEnabled === 'boolean') settings.searchEnabled = parsed.searchEnabled;
                         if (typeof parsed.memoryEnabled === 'boolean') settings.memoryEnabled = parsed.memoryEnabled;
                         if (typeof parsed.visionEnabled === 'boolean') settings.visionEnabled = parsed.visionEnabled;
+                    }
 
+                    if (phoneFrame) {
                         phoneFrame.className = 'phone-frame';
                         if (settings.theme === 'light') {
                             phoneFrame.classList.add('theme-light');
                         }
+                    }
 
-                        searchToggle.checked = settings.searchEnabled;
-                        memoryToggle.checked = settings.memoryEnabled;
-                        visionToggle.checked = settings.visionEnabled;
+                    if (searchToggle) searchToggle.checked = settings.searchEnabled;
+                    if (memoryToggle) memoryToggle.checked = settings.memoryEnabled;
+                    if (visionToggle) visionToggle.checked = settings.visionEnabled;
 
-                        for (var i = 0; i < themeButtons.length; i++) {
-                            var btn = themeButtons[i];
-                            if (btn.dataset.theme === settings.theme) {
-                                btn.classList.add('active');
-                            } else {
-                                btn.classList.remove('active');
-                            }
+                    for (var i = 0; i < themeButtons.length; i++) {
+                        var btn = themeButtons[i];
+                        if (btn.dataset.theme === settings.theme) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
                         }
                     }
 
-                    var savedMemory = localStorage.getItem('aiMemory');
+                    var savedMemory = localStorage.getItem(MEMORY_KEY);
                     if (savedMemory && settings.memoryEnabled) {
                         try {
                             conversationMemory = JSON.parse(savedMemory);
@@ -1749,7 +1924,7 @@
                         }
                     }
 
-                    var savedFacts = localStorage.getItem('aiFacts');
+                    var savedFacts = localStorage.getItem(FACTS_KEY);
                     if (savedFacts) {
                         try {
                             userFacts = JSON.parse(savedFacts);
@@ -1760,50 +1935,69 @@
                 } catch (e) {}
             }
 
-            // Обработчики
-            unlockBtn.addEventListener('click', function(e) { e.preventDefault(); checkPassword(); });
-            passwordInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') { e.preventDefault(); checkPassword(); }
-            });
-            lockChatBtn.addEventListener('click', function(e) { e.preventDefault(); lockChat(); });
-            memoryBtn.addEventListener('click', function(e) { e.preventDefault(); showMemory(); });
-            clearChatBtn.addEventListener('click', function(e) { e.preventDefault(); clearChat(); });
-            settingsIcon.addEventListener('click', function(e) {
-                e.preventDefault(); e.stopPropagation(); openSettings();
-            });
-            closeSettingsBtn.addEventListener('click', function(e) { e.preventDefault(); closeSettings(); });
-            settingsOverlay.addEventListener('click', function(e) { e.preventDefault(); closeSettings(); });
-            settingsModal.addEventListener('click', function(e) { e.stopPropagation(); });
-            attachBtn.addEventListener('click', function(e) { e.preventDefault(); fileInput.click(); });
-            fileInput.addEventListener('change', handleFileSelect);
-            sendBtn.addEventListener('click', function(e) { e.preventDefault(); sendMessage(); });
-            messageInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-            });
+            function bindEvents() {
+                if (unlockBtn) unlockBtn.addEventListener('click', function(e) { e.preventDefault(); checkPassword(); });
+                if (passwordInput) passwordInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') { e.preventDefault(); checkPassword(); }
+                });
+                if (lockChatBtn) lockChatBtn.addEventListener('click', function(e) { e.preventDefault(); lockChat(); });
+                if (memoryBtn) memoryBtn.addEventListener('click', function(e) { e.preventDefault(); showMemory(); });
+                if (clearChatBtn) clearChatBtn.addEventListener('click', function(e) { e.preventDefault(); clearChat(); });
+                if (settingsIcon) settingsIcon.addEventListener('click', function(e) {
+                    e.preventDefault(); e.stopPropagation(); openSettings();
+                });
+                if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', function(e) { e.preventDefault(); closeSettings(); });
+                if (settingsOverlay) settingsOverlay.addEventListener('click', function(e) { e.preventDefault(); closeSettings(); });
+                if (settingsModal) settingsModal.addEventListener('click', function(e) { e.stopPropagation(); });
+                if (attachBtn) attachBtn.addEventListener('click', function(e) { e.preventDefault(); if (fileInput) fileInput.click(); });
+                if (fileInput) fileInput.addEventListener('change', handleFileSelect);
+                if (sendBtn) sendBtn.addEventListener('click', function(e) { e.preventDefault(); sendMessage(); });
+                if (messageInput) messageInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+                });
 
-            for (var i = 0; i < themeButtons.length; i++) {
-                (function(btn) {
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        applyTheme(btn.dataset.theme);
-                    });
-                })(themeButtons[i]);
+                if (imageViewerClose) imageViewerClose.addEventListener('click', function() { closeImageViewer(); });
+                if (imageViewer) imageViewer.addEventListener('click', function(e) {
+                    if (e.target === imageViewer) { closeImageViewer(); }
+                });
+
+                for (var i = 0; i < themeButtons.length; i++) {
+                    (function(btn) {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            applyTheme(btn.dataset.theme);
+                        });
+                    })(themeButtons[i]);
+                }
+
+                document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
+
+                var lastTouchEnd = 0;
+                document.addEventListener('touchend', function(e) {
+                    var now = Date.now();
+                    if (now - lastTouchEnd <= 300) e.preventDefault();
+                    lastTouchEnd = now;
+                }, { passive: false });
             }
 
-            document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
+            function init() {
+                bindEvents();
+                createParticles();
+                loadSettings();
+                if (passwordInput) passwordInput.focus();
+            }
 
-            var lastTouchEnd = 0;
-            document.addEventListener('touchend', function(e) {
-                var now = Date.now();
-                if (now - lastTouchEnd <= 300) e.preventDefault();
-                lastTouchEnd = now;
-            }, { passive: false });
+            function destroy() {
+                isDestroyed = true;
+                clearTimeout(thinkingTimer);
+                clearTimeout(toastTimer);
+                clearParticles();
+            }
 
-            createParticles();
-            loadSettings();
-            passwordInput.focus();
+            window.addEventListener('beforeunload', destroy);
+            window.addEventListener('pagehide', destroy);
 
-            window.addEventListener('beforeunload', function() { clearParticles(); });
+            init();
         })();
     </script>
 </body>

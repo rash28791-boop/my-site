@@ -1,1810 +1,361 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>AI Бот · Диалог</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100vw;
-            height: 100vh;
-            height: -webkit-fill-available;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            -webkit-user-select: none;
-            overflow: hidden;
-        }
-
-        .bg-animated {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            background: #0a0a14;
-            overflow: hidden;
-        }
-
-        .bg-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            animation: orbFloat 20s ease-in-out infinite;
-        }
-
-        .bg-orb:nth-child(1) {
-            width: 300px;
-            height: 300px;
-            background: rgba(0, 180, 255, 0.15);
-            top: -50px;
-            left: -50px;
-            animation-delay: 0s;
-        }
-
-        .bg-orb:nth-child(2) {
-            width: 250px;
-            height: 250px;
-            background: rgba(123, 47, 255, 0.12);
-            bottom: -50px;
-            right: -50px;
-            animation-delay: -7s;
-        }
-
-        .bg-orb:nth-child(3) {
-            width: 200px;
-            height: 200px;
-            background: rgba(0, 200, 200, 0.1);
-            top: 50%;
-            left: 50%;
-            animation-delay: -14s;
-        }
-
-        @keyframes orbFloat {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(100px, -50px) scale(1.2); }
-            50% { transform: translate(50px, 100px) scale(0.9); }
-            75% { transform: translate(-80px, 30px) scale(1.1); }
-        }
-
-        .phone-frame {
-            width: 100vw;
-            height: 100vh;
-            height: -webkit-fill-available;
-            max-width: 100%;
-            max-height: 100%;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            z-index: 1;
-            background: transparent;
-        }
-
-        .lock-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 20;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px);
-            color: white;
-            will-change: transform, opacity;
-            background: rgba(10, 10, 25, 0.88);
-            backdrop-filter: blur(60px) saturate(220%);
-            -webkit-backdrop-filter: blur(60px) saturate(220%);
-        }
-
-        .lock-screen.unlocked {
-            transform: translateY(-110%);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .particles-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(1.5px);
-            animation: floatUp var(--duration) linear infinite;
-            animation-delay: var(--delay);
-            will-change: transform, opacity;
-            opacity: 0;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(105vh) scale(0); opacity: 0; }
-            15% { opacity: var(--max-opacity); }
-            50% { opacity: calc(var(--max-opacity) * 0.6); }
-            85% { opacity: calc(var(--max-opacity) * 0.2); }
-            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
-        }
-
-        .lock-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 320px;
-        }
-
-        .lock-icon {
-            font-size: 90px;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 15px 40px rgba(0, 180, 255, 0.8));
-            animation: lockPulse 3s ease-in-out infinite;
-        }
-
-        @keyframes lockPulse {
-            0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 15px 40px rgba(0, 180, 255, 0.6)); }
-            50% { transform: scale(1.08) rotate(5deg); filter: drop-shadow(0 20px 50px rgba(123, 47, 255, 0.9)); }
-        }
-
-        .lock-icon.shake {
-            animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 90% { transform: translateX(-10px); }
-            20%, 80% { transform: translateX(10px); }
-            30%, 50%, 70% { transform: translateX(-6px); }
-            40%, 60% { transform: translateX(6px); }
-        }
-
-        .lock-title {
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #00b4ff 0%, #7b2fff 50%, #ff2d95 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
-            animation: titleShine 4s ease-in-out infinite;
-        }
-
-        @keyframes titleShine {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.3); }
-        }
-
-        .lock-subtitle {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.4);
-            margin-bottom: 45px;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            text-align: center;
-        }
-
-        .password-input {
-            background: rgba(255, 255, 255, 0.06);
-            border: 2px solid rgba(0, 180, 255, 0.25);
-            border-radius: 18px;
-            padding: 18px;
-            font-size: 24px;
-            width: 100%;
-            text-align: center;
-            color: white;
-            outline: none;
-            letter-spacing: 8px;
-            caret-color: #00b4ff;
-            transition: all 0.3s ease;
-            margin-bottom: 28px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .password-input:focus {
-            border-color: rgba(0, 180, 255, 0.7);
-            background: rgba(255, 255, 255, 0.12);
-            box-shadow: 0 0 50px rgba(0, 180, 255, 0.3), inset 0 2px 10px rgba(0, 0, 0, 0.2);
-            transform: scale(1.02);
-        }
-
-        .password-input.error {
-            border-color: rgba(255, 69, 58, 0.7);
-            animation: errorPulse 0.5s ease;
-        }
-
-        @keyframes errorPulse {
-            0%, 100% { transform: scale(1); }
-            30% { transform: scale(1.05); }
-            60% { transform: scale(0.97); }
-        }
-
-        .password-input::placeholder {
-            color: rgba(255, 255, 255, 0.25);
-            letter-spacing: 4px;
-            font-size: 16px;
-        }
-
-        .unlock-btn {
-            background: linear-gradient(135deg, #00b4ff, #7b2fff);
-            border: none;
-            padding: 18px 50px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 700;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
-            box-shadow: 0 12px 40px rgba(0, 180, 255, 0.5);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            width: 100%;
-            max-width: 260px;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .unlock-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: rotate(45deg);
-            animation: btnShine 3s infinite;
-        }
-
-        @keyframes btnShine {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        .unlock-btn:active {
-            transform: scale(0.94);
-            box-shadow: 0 6px 25px rgba(0, 180, 255, 0.4);
-        }
-
-        .unlock-btn:disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .app-screen {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            background: transparent;
-        }
-
-        .chat-header {
-            padding: env(safe-area-inset-top, 12px) 16px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: 600;
-            font-size: 19px;
-            z-index: 5;
-            min-height: 56px;
-            background: rgba(15, 15, 30, 0.7);
-            backdrop-filter: blur(60px) saturate(220%);
-            -webkit-backdrop-filter: blur(60px) saturate(220%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            transition: all 0.3s ease;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .icon-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: rgba(255, 255, 255, 0.85);
-            flex-shrink: 0;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-
-        .icon-btn:active {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(0.88);
-        }
-
-        .chat-title {
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            background: linear-gradient(135deg, #00b4ff, #7b2fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 18px;
-        }
-
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
-            background: transparent;
-            scroll-behavior: smooth;
-        }
-
-        .messages-container::-webkit-scrollbar {
-            width: 3px;
-        }
-
-        .messages-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .messages-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-        }
-
-        .message-bubble {
-            max-width: 82%;
-            padding: 12px 16px;
-            border-radius: 22px;
-            font-size: 15px;
-            line-height: 1.5;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            color: #fff;
-            align-self: flex-start;
-            animation: messageSlideIn 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            white-space: pre-wrap;
-            position: relative;
-        }
-
-        @keyframes messageSlideIn {
-            from { opacity: 0; transform: translateY(15px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .message-bubble.sent {
-            background: linear-gradient(135deg, rgba(0, 180, 255, 0.3), rgba(123, 47, 255, 0.3));
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            color: white;
-            align-self: flex-end;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-bottom-right-radius: 6px;
-        }
-
-        .message-bubble.system {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: rgba(255, 255, 255, 0.45);
-            align-self: center;
-            font-style: italic;
-            font-size: 12px;
-            border-radius: 14px;
-            padding: 6px 14px;
-            border: none;
-            max-width: 85%;
-        }
-
-        .message-bubble.ai {
-            background: rgba(0, 200, 150, 0.1);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(0, 200, 150, 0.2);
-            border-bottom-left-radius: 6px;
-        }
-
-        .message-bubble.loading {
-            background: rgba(255, 255, 255, 0.04);
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .msg-time {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.35);
-            margin-top: 4px;
-            text-align: right;
-        }
-
-        .typing-indicator {
-            display: flex;
-            gap: 5px;
-            padding: 6px 0;
-        }
-
-        .typing-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.6);
-            animation: typingBounce 1.4s infinite;
-        }
-
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typingBounce {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
-            30% { transform: translateY(-8px); opacity: 1; }
-        }
-
-        .message-image {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 16px;
-            margin-bottom: 6px;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .image-caption {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 4px;
-            font-style: italic;
-        }
-
-        .input-area {
-            display: flex;
-            padding: 10px 12px;
-            padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-            gap: 8px;
-            align-items: center;
-            z-index: 5;
-            min-height: 60px;
-            background: rgba(15, 15, 30, 0.7);
-            backdrop-filter: blur(60px) saturate(220%);
-            -webkit-backdrop-filter: blur(60px) saturate(220%);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .attach-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #00b4ff;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            flex-shrink: 0;
-        }
-
-        .attach-btn:active {
-            transform: scale(0.85) rotate(90deg);
-            background: rgba(0, 180, 255, 0.2);
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 14px 18px;
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            font-size: 15px;
-            outline: none;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: #fff;
-            transition: all 0.2s ease;
-            min-width: 0;
-        }
-
-        .message-input:focus {
-            border-color: rgba(0, 180, 255, 0.5);
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 20px rgba(0, 180, 255, 0.15);
-        }
-
-        .message-input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .send-btn {
-            background: linear-gradient(135deg, #00b4ff, #7b2fff);
-            border: none;
-            color: white;
-            font-size: 15px;
-            font-weight: 600;
-            padding: 12px 20px;
-            border-radius: 24px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            flex-shrink: 0;
-            box-shadow: 0 4px 20px rgba(0, 180, 255, 0.35);
-        }
-
-        .send-btn:active {
-            transform: scale(0.92);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 12;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.35s ease;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .overlay.visible {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .settings-modal {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            border-top-left-radius: 28px;
-            border-top-right-radius: 28px;
-            padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
-            box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.6);
-            z-index: 30;
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            max-height: 85vh;
-            overflow-y: auto;
-            background: rgba(20, 20, 40, 0.92);
-            backdrop-filter: blur(60px) saturate(220%);
-            -webkit-backdrop-filter: blur(60px) saturate(220%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #fff;
-        }
-
-        .settings-modal.open {
-            transform: translateY(0);
-        }
-
-        .settings-handle {
-            width: 40px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 3px;
-            align-self: center;
-            margin-bottom: 8px;
-        }
-
-        .settings-title {
-            font-size: 22px;
-            font-weight: 700;
-            text-align: center;
-            background: linear-gradient(135deg, #00b4ff, #7b2fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .settings-section {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .settings-label {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .theme-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .theme-btn {
-            padding: 14px;
-            border-radius: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.04);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            font-size: 15px;
-            color: #fff;
-            text-align: center;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-        }
-
-        .theme-btn:active {
-            transform: scale(0.94);
-        }
-
-        .theme-btn.active {
-            background: linear-gradient(135deg, #00b4ff, #7b2fff);
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 25px rgba(0, 180, 255, 0.4);
-        }
-
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 18px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 16px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .toggle-label {
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .toggle-switch {
-            position: relative;
-            width: 52px;
-            height: 30px;
-            flex-shrink: 0;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.15);
-            transition: 0.3s;
-            border-radius: 30px;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 24px;
-            width: 24px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .toggle-slider {
-            background: linear-gradient(135deg, #00b4ff, #7b2fff);
-        }
-
-        input:checked + .toggle-slider:before {
-            transform: translateX(22px);
-        }
-
-        .close-settings {
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 16px;
-            border-radius: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            color: #fff;
-            transition: all 0.2s ease;
-            font-size: 16px;
-            text-align: center;
-            margin-top: 8px;
-        }
-
-        .close-settings:active {
-            background: rgba(255, 255, 255, 0.15);
-            transform: scale(0.97);
-        }
-
-        .toast {
-            position: absolute;
-            top: calc(env(safe-area-inset-top, 20px) + 50px);
-            left: 50%;
-            transform: translateX(-50%) translateY(-120px);
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 14px;
-            z-index: 50;
-            transition: transform 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            pointer-events: none;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            white-space: nowrap;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        /* СВЕТЛАЯ ТЕМА */
-        .phone-frame.theme-light .chat-header {
-            background: rgba(255, 255, 255, 0.75) !important;
-            color: #1a1a1a !important;
-            border-bottom-color: rgba(0, 0, 0, 0.08) !important;
-        }
-
-        .phone-frame.theme-light .chat-title {
-            background: linear-gradient(135deg, #007aff, #5856d6) !important;
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-            background-clip: text !important;
-        }
-
-        .phone-frame.theme-light .message-bubble {
-            background: rgba(255, 255, 255, 0.65) !important;
-            color: #1a1a1a !important;
-            border-color: rgba(0, 0, 0, 0.06) !important;
-        }
-
-        .phone-frame.theme-light .message-bubble.sent {
-            background: rgba(0, 122, 255, 0.2) !important;
-            color: #1a1a1a !important;
-            border-color: rgba(0, 122, 255, 0.25) !important;
-        }
-
-        .phone-frame.theme-light .message-bubble.ai {
-            background: rgba(52, 199, 89, 0.18) !important;
-            color: #1a1a1a !important;
-            border-color: rgba(52, 199, 89, 0.25) !important;
-        }
-
-        .phone-frame.theme-light .message-bubble.system {
-            background: rgba(0, 0, 0, 0.03) !important;
-            color: rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .phone-frame.theme-light .message-bubble.loading {
-            background: rgba(0, 0, 0, 0.04) !important;
-            color: rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .phone-frame.theme-light .message-input {
-            background: rgba(255, 255, 255, 0.65) !important;
-            color: #1a1a1a !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .phone-frame.theme-light .message-input::placeholder {
-            color: rgba(0, 0, 0, 0.35) !important;
-        }
-
-        .phone-frame.theme-light .icon-btn {
-            background: rgba(0, 0, 0, 0.05) !important;
-            color: #1a1a1a !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .phone-frame.theme-light .input-area {
-            background: rgba(255, 255, 255, 0.75) !important;
-            border-top-color: rgba(0, 0, 0, 0.08) !important;
-        }
-
-        .phone-frame.theme-light .settings-modal {
-            background: rgba(255, 255, 255, 0.95) !important;
-            color: #1a1a1a !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .phone-frame.theme-light .settings-title {
-            background: linear-gradient(135deg, #007aff, #5856d6) !important;
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-            background-clip: text !important;
-        }
-
-        .phone-frame.theme-light .settings-label {
-            color: rgba(0, 0, 0, 0.5) !important;
-        }
-
-        .phone-frame.theme-light .theme-btn {
-            background: rgba(0, 0, 0, 0.04) !important;
-            color: #1a1a1a !important;
-            border-color: rgba(0, 0, 0, 0.12) !important;
-        }
-
-        .phone-frame.theme-light .toggle-container {
-            background: rgba(0, 0, 0, 0.03) !important;
-            border-color: rgba(0, 0, 0, 0.06) !important;
-        }
-
-        .phone-frame.theme-light .toggle-label {
-            color: #1a1a1a !important;
-        }
-
-        .phone-frame.theme-light .close-settings {
-            background: rgba(0, 0, 0, 0.05) !important;
-            color: #1a1a1a !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .phone-frame.theme-light .attach-btn {
-            background: rgba(0, 0, 0, 0.05) !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .phone-frame.theme-light .msg-time {
-            color: rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .phone-frame.theme-light .image-caption {
-            color: rgba(0, 0, 0, 0.5) !important;
-        }
-
-        .phone-frame.theme-light .overlay {
-            background: rgba(255, 255, 255, 0.5) !important;
-        }
-
-        .phone-frame.theme-light .typing-dot {
-            background: rgba(0, 0, 0, 0.4) !important;
-        }
-    </style>
-</head>
-<body>
-    <div class="bg-animated">
-        <div class="bg-orb"></div>
-        <div class="bg-orb"></div>
-        <div class="bg-orb"></div>
-    </div>
-
-    <div class="phone-frame" id="phoneFrame">
-        <div class="lock-screen" id="lockScreen">
-            <div class="particles-container" id="particlesContainer"></div>
-            <div class="lock-content">
-                <div class="lock-icon" id="lockIcon">🧠</div>
-                <div class="lock-title">AI Бот</div>
-                <div class="lock-subtitle">Нейросеть · GPT</div>
-                <input type="password" class="password-input" id="passwordInput" placeholder="Введите пароль" maxlength="6" inputmode="numeric" autocomplete="off">
-                <button class="unlock-btn" id="unlockBtn">Войти</button>
-            </div>
-        </div>
-
-        <div class="overlay" id="settingsOverlay"></div>
-
-        <div class="app-screen" id="appScreen">
-            <div class="chat-header">
-                <div class="header-left">
-                    <button class="icon-btn" id="lockChatBtn" aria-label="Заблокировать">🔒</button>
-                    <div class="chat-title">🧠 AI Бот</div>
-                </div>
-                <div class="header-right">
-                    <button class="icon-btn" id="memoryBtn" aria-label="Память" title="Память диалога">🧠</button>
-                    <button class="icon-btn" id="clearChatBtn" aria-label="Очистить">🗑️</button>
-                    <button class="icon-btn" id="settingsIcon" aria-label="Настройки">⚙️</button>
-                </div>
-            </div>
-
-            <div class="messages-container" id="messagesContainer">
-                <div class="message-bubble system">🤖 Нейросеть активирована</div>
-                <div class="message-bubble ai">
-                    👋 Привет! Я AI-бот.
-                    ✨ Мои возможности:
-                    • 🔍 Поиск в интернете
-                    • 🖼️ Распознавание фото
-                    • 🧠 Память диалога
-                    • 📚 Умные ответы
-                    Задай вопрос или отправь фото!
-                </div>
-            </div>
-
-            <div class="input-area">
-                <button class="attach-btn" id="attachBtn" aria-label="Прикрепить фото">📎</button>
-                <input type="text" class="message-input" id="messageInput" placeholder="Спроси что-нибудь..." autocomplete="off" maxlength="500">
-                <button class="send-btn" id="sendBtn">➤</button>
-            </div>
-        </div>
-
-        <input type="file" id="fileInput" accept="image/*">
-
-        <div class="settings-modal" id="settingsModal">
-            <div class="settings-handle"></div>
-            <div class="settings-title">⚙️ Настройки AI</div>
-            
-            <div class="settings-section">
-                <div class="settings-label">Тема</div>
-                <div class="theme-options">
-                    <button class="theme-btn" data-theme="light">☀️ Светлая</button>
-                    <button class="theme-btn active" data-theme="dark">🌙 Тёмная</button>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <div class="toggle-container">
-                    <span class="toggle-label">🔍 Поиск в интернете</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="searchToggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <div class="toggle-container">
-                    <span class="toggle-label">🧠 Память диалога</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="memoryToggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <div class="toggle-container">
-                    <span class="toggle-label">🖼️ Распознавание фото</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="visionToggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <button class="close-settings" id="closeSettingsBtn">✓ Применить</button>
-        </div>
-
-        <div class="toast" id="toast"></div>
-    </div>
-
-    <script>
-        (function() {
-            'use strict';
-
-            var CORRECT_PASSWORD = '1394';
-            var WIKIPEDIA_API = 'https://ru.wikipedia.org/w/api.php';
-            var DUCKDUCKGO_API = 'https://api.duckduckgo.com/';
-
-            var lockScreen = document.getElementById('lockScreen');
-            var lockIcon = document.getElementById('lockIcon');
-            var passwordInput = document.getElementById('passwordInput');
-            var unlockBtn = document.getElementById('unlockBtn');
-            var lockChatBtn = document.getElementById('lockChatBtn');
-            var memoryBtn = document.getElementById('memoryBtn');
-            var clearChatBtn = document.getElementById('clearChatBtn');
-            var settingsIcon = document.getElementById('settingsIcon');
-            var settingsModal = document.getElementById('settingsModal');
-            var settingsOverlay = document.getElementById('settingsOverlay');
-            var closeSettingsBtn = document.getElementById('closeSettingsBtn');
-            var messageInput = document.getElementById('messageInput');
-            var sendBtn = document.getElementById('sendBtn');
-            var messagesContainer = document.getElementById('messagesContainer');
-            var phoneFrame = document.getElementById('phoneFrame');
-            var particlesContainer = document.getElementById('particlesContainer');
-            var themeButtons = document.querySelectorAll('.theme-btn');
-            var toast = document.getElementById('toast');
-            var searchToggle = document.getElementById('searchToggle');
-            var memoryToggle = document.getElementById('memoryToggle');
-            var visionToggle = document.getElementById('visionToggle');
-            var attachBtn = document.getElementById('attachBtn');
-            var fileInput = document.getElementById('fileInput');
-
-            var isLocked = true;
-            var isProcessingUnlock = false;
-            var isProcessingMessage = false;
-            var particles = [];
-            var toastTimer;
-            var conversationMemory = [];
-            var userFacts = [];
-
-            var settings = {
-                theme: 'dark',
-                searchEnabled: true,
-                memoryEnabled: true,
-                visionEnabled: true
-            };
-
-            var knowledgeBase = {
-                'привет': 'Привет! Рад тебя видеть! Чем могу помочь?',
-                'здравствуй': 'Здравствуй! Задавай любой вопрос.',
-                'как дела': 'У меня всё отлично! А как твои дела?',
-                'что ты умеешь': '🌟 Мои возможности:\n\n🔍 Поиск в интернете (Wikipedia + DuckDuckGo)\n🖼️ Анализ фотографий\n🧠 Память диалога\n📚 Умные ответы\n\nЧто тебя интересует?',
-                'кто ты': 'Я AI-бот с доступом к интернету и распознаванием фото. Могу искать информацию, анализировать изображения и помнить контекст разговора.',
-                'пока': 'До встречи! 😊',
-                'спасибо': 'Всегда пожалуйста! 🤗'
-            };
-
-            // Вспомогательные функции
-            function padNumber(num) {
-                return num < 10 ? '0' + num : '' + num;
-            }
-
-            function isInteger(num) {
-                return typeof num === 'number' && isFinite(num) && Math.floor(num) === num;
-            }
-
-            function showToast(message, duration) {
-                duration = duration || 2000;
-                toast.textContent = message;
-                toast.classList.add('show');
-                clearTimeout(toastTimer);
-                toastTimer = setTimeout(function() {
-                    toast.classList.remove('show');
-                }, duration);
-            }
-
-            function createParticles() {
-                var fragment = document.createDocumentFragment();
-                var colors = [
-                    'rgba(0, 180, 255, 0.5)',
-                    'rgba(123, 47, 255, 0.4)',
-                    'rgba(0, 200, 255, 0.3)',
-                    'rgba(255, 45, 149, 0.3)'
-                ];
-
-                for (var i = 0; i < 22; i++) {
-                    var particle = document.createElement('div');
-                    particle.classList.add('particle');
-                    var size = 2 + Math.random() * 5;
-                    particle.style.width = size + 'px';
-                    particle.style.height = size + 'px';
-                    particle.style.left = Math.random() * 100 + '%';
-                    particle.style.setProperty('--duration', (5 + Math.random() * 7) + 's');
-                    particle.style.setProperty('--delay', Math.random() * 7 + 's');
-                    particle.style.setProperty('--max-opacity', String(0.3 + Math.random() * 0.5));
-                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    fragment.appendChild(particle);
-                    particles.push(particle);
-                }
-
-                particlesContainer.appendChild(fragment);
-            }
-
-            function clearParticles() {
-                for (var i = particles.length - 1; i >= 0; i--) {
-                    if (particles[i] && particles[i].parentNode) {
-                        particles[i].parentNode.removeChild(particles[i]);
-                    }
-                }
-                particles = [];
-            }
-
-            function checkPassword() {
-                if (isProcessingUnlock || !isLocked) return;
-
-                if (passwordInput.value.trim() === CORRECT_PASSWORD) {
-                    isProcessingUnlock = true;
-                    unlockBtn.disabled = true;
-                    lockScreen.classList.add('unlocked');
-                    isLocked = false;
-                    passwordInput.value = '';
-                    passwordInput.classList.remove('error');
-
-                    setTimeout(function() {
-                        isProcessingUnlock = false;
-                        unlockBtn.disabled = false;
-                        messageInput.focus();
-                    }, 500);
-                } else {
-                    lockIcon.classList.add('shake');
-                    passwordInput.classList.add('error');
-                    passwordInput.value = '';
-                    passwordInput.placeholder = 'Неверный пароль';
-                    setTimeout(function() {
-                        lockIcon.classList.remove('shake');
-                        passwordInput.classList.remove('error');
-                        passwordInput.placeholder = 'Введите пароль';
-                    }, 500);
-                }
-            }
-
-            function lockChat() {
-                if (isLocked) return;
-                isLocked = true;
-                lockScreen.classList.remove('unlocked');
-                passwordInput.value = '';
-                passwordInput.classList.remove('error');
-                passwordInput.placeholder = 'Введите пароль';
-                closeSettings();
-                setTimeout(function() { passwordInput.focus(); }, 300);
-            }
-
-            function showMemory() {
-                if (conversationMemory.length === 0) {
-                    showToast('🧠 Память пуста');
-                    return;
-                }
-
-                var summary = '🧠 ПАМЯТЬ ДИАЛОГА:\n\n';
-                var lastMessages = conversationMemory.slice(-10);
-
-                for (var i = 0; i < lastMessages.length; i++) {
-                    var role = lastMessages[i].role === 'user' ? '👤 Вы' : '🤖 AI';
-                    var content = lastMessages[i].content;
-                    if (content.length > 60) {
-                        content = content.substring(0, 60) + '...';
-                    }
-                    summary += role + ': ' + content + '\n';
-                }
-
-                if (userFacts.length > 0) {
-                    summary += '\n📝 Факты:\n';
-                    for (var j = 0; j < userFacts.length; j++) {
-                        summary += '• ' + userFacts[j] + '\n';
-                    }
-                }
-
-                summary += '\n💾 Всего сообщений: ' + conversationMemory.length;
-                addMessage(summary, 'ai');
-            }
-
-            function clearChat() {
-                var messages = messagesContainer.querySelectorAll('.message-bubble:not(.system)');
-                for (var i = messages.length - 1; i >= 0; i--) {
-                    if (messages[i].parentNode) {
-                        messages[i].parentNode.removeChild(messages[i]);
-                    }
-                }
-                conversationMemory = [];
-                userFacts = [];
-                addMessage('👋 Диалог очищен. Задай вопрос или отправь фото!', 'ai');
-                showToast('🗑️ Чат очищен');
-            }
-
-            function addMessage(text, type, imageUrl) {
-                type = type || 'sent';
-                imageUrl = imageUrl || null;
-
-                var msgDiv = document.createElement('div');
-                msgDiv.classList.add('message-bubble');
-                if (type === 'sent') msgDiv.classList.add('sent');
-                if (type === 'ai') msgDiv.classList.add('ai');
-                if (type === 'system') msgDiv.classList.add('system');
-
-                if (imageUrl) {
-                    var img = document.createElement('img');
-                    img.src = imageUrl;
-                    img.classList.add('message-image');
-                    img.onclick = function() {
-                        var win = window.open('', '_blank');
-                        if (win) {
-                            win.document.write('<img src="' + imageUrl + '" style="max-width:100%;height:auto;" />');
-                        }
-                    };
-                    msgDiv.appendChild(img);
-
-                    if (text && text !== '[Фото]') {
-                        var caption = document.createElement('div');
-                        caption.classList.add('image-caption');
-                        caption.textContent = '📷 ' + text;
-                        msgDiv.appendChild(caption);
-                    }
-                }
-
-                if (!(imageUrl && text === '[Фото]')) {
-                    var textDiv = document.createElement('div');
-                    textDiv.textContent = text || '';
-                    msgDiv.appendChild(textDiv);
-                }
-
-                var timeDiv = document.createElement('div');
-                timeDiv.classList.add('msg-time');
-                var now = new Date();
-                timeDiv.textContent = padNumber(now.getHours()) + ':' + padNumber(now.getMinutes());
-                msgDiv.appendChild(timeDiv);
-
-                messagesContainer.appendChild(msgDiv);
-                requestAnimationFrame(function() {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                });
-                return msgDiv;
-            }
-
-            function addLoadingMessage() {
-                var msgDiv = document.createElement('div');
-                msgDiv.classList.add('message-bubble', 'ai', 'loading');
-                msgDiv.id = 'loadingMessage';
-
-                var indicator = document.createElement('div');
-                indicator.classList.add('typing-indicator');
-                for (var i = 0; i < 3; i++) {
-                    var dot = document.createElement('div');
-                    dot.classList.add('typing-dot');
-                    indicator.appendChild(dot);
-                }
-
-                msgDiv.appendChild(indicator);
-                messagesContainer.appendChild(msgDiv);
-                requestAnimationFrame(function() {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                });
-                return msgDiv;
-            }
-
-            function removeLoadingMessage() {
-                var loading = document.getElementById('loadingMessage');
-                if (loading && loading.parentNode) {
-                    loading.parentNode.removeChild(loading);
-                }
-            }
-
-            // Поиск в интернете
-            async function searchWikipedia(query) {
-                try {
-                    var url = WIKIPEDIA_API + '?action=query&list=search&srsearch=' + encodeURIComponent(query) + '&format=json&origin=*&srlimit=5';
-                    var response = await fetch(url);
-                    if (!response.ok) return null;
-
-                    var data = await response.json();
-
-                    if (data.query && data.query.search && data.query.search.length > 0) {
-                        var results = data.query.search;
-                        var answer = '🔍 Wikipedia:\n\n';
-
-                        for (var i = 0; i < Math.min(results.length, 3); i++) {
-                            var snippet = results[i].snippet.replace(/<\/?[^>]+(>|$)/g, '').trim();
-                            if (snippet.length > 20) {
-                                answer += '📌 ' + results[i].title + '\n' + snippet.substring(0, 200) + '...\n\n';
-                            }
-                        }
-
-                        return answer;
-                    }
-                    return null;
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            async function searchDuckDuckGo(query) {
-                try {
-                    var url = DUCKDUCKGO_API + '?q=' + encodeURIComponent(query) + '&format=json&no_html=1';
-                    var response = await fetch(url);
-                    if (!response.ok) return null;
-
-                    var data = await response.json();
-
-                    if (data.AbstractText && data.AbstractText.length > 15) {
-                        return '🔍 ' + data.AbstractText + '\n\n🌐 DuckDuckGo';
-                    }
-
-                    if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-                        for (var i = 0; i < Math.min(data.RelatedTopics.length, 3); i++) {
-                            var topic = data.RelatedTopics[i];
-                            if (topic.Text && topic.Text.length > 15) {
-                                return '🔍 ' + topic.Text.substring(0, 350) + '\n\n🌐 DuckDuckGo';
-                            }
-                        }
-                    }
-
-                    return null;
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            // Распознавание фото
-            function analyzeImage(imageUrl) {
-                return new Promise(function(resolve) {
-                    var img = new Image();
-                    img.crossOrigin = 'anonymous';
-
-                    img.onload = function() {
-                        var width = img.width;
-                        var height = img.height;
-                        var ratio = width / height;
-                        var totalPixels = width * height;
-
-                        var analysis = '🖼️ АНАЛИЗ ФОТО:\n\n';
-                        analysis += '📐 ' + width + '×' + height + ' (' + (totalPixels / 1000000).toFixed(1) + ' МП)\n';
-
-                        try {
-                            var canvas = document.createElement('canvas');
-                            var ctx = canvas.getContext('2d');
-                            if (!ctx) {
-                                analysis += '\n⚠️ Анализ недоступен\n';
-                                resolve(analysis);
-                                return;
-                            }
-
-                            var maxSize = 150;
-                            var scale = Math.min(maxSize / width, maxSize / height);
-                            canvas.width = Math.floor(width * scale);
-                            canvas.height = Math.floor(height * scale);
-
-                            try {
-                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                            } catch (drawError) {
-                                analysis += '\n⚠️ Нет доступа к данным фото\n';
-                                resolve(analysis);
-                                return;
-                            }
-
-                            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                            var data = imageData.data;
-
-                            var totalR = 0, totalG = 0, totalB = 0;
-                            var pixelCount = data.length / 4;
-
-                            for (var i = 0; i < data.length; i += 4) {
-                                totalR += data[i];
-                                totalG += data[i + 1];
-                                totalB += data[i + 2];
-                            }
-
-                            var avgR = Math.round(totalR / pixelCount);
-                            var avgG = Math.round(totalG / pixelCount);
-                            var avgB = Math.round(totalB / pixelCount);
-                            var avgBrightness = (avgR + avgG + avgB) / 3;
-
-                            analysis += '🎨 RGB(' + avgR + ', ' + avgG + ', ' + avgB + ')\n';
-
-                            if (avgBrightness > 200) analysis += '💡 Очень светлое\n';
-                            else if (avgBrightness > 150) analysis += '💡 Светлое\n';
-                            else if (avgBrightness > 100) analysis += '🌓 Средней яркости\n';
-                            else if (avgBrightness > 50) analysis += '🌑 Тёмное\n';
-                            else analysis += '⚫ Очень тёмное\n';
-
-                            var maxRGB = Math.max(avgR, avgG, avgB);
-                            var minRGB = Math.min(avgR, avgG, avgB);
-                            var saturation = maxRGB === 0 ? 0 : (maxRGB - minRGB) / maxRGB;
-
-                            if (saturation < 0.15) analysis += '⬜ Цвета приглушённые\n';
-                            else if (saturation < 0.35) analysis += '🎨 Умеренные цвета\n';
-                            else analysis += '🌈 Насыщенные цвета\n';
-
-                            if (avgR > avgG + 30 && avgR > avgB + 30) analysis += '🔴 Доминирует красный\n';
-                            else if (avgG > avgR + 30 && avgG > avgB + 30) analysis += '🟢 Доминирует зелёный\n';
-                            else if (avgB > avgR + 30 && avgB > avgG + 30) analysis += '🔵 Доминирует синий\n';
-
-                        } catch (e) {
-                            analysis += '\n⚠️ Частичный анализ\n';
-                        }
-
-                        if (ratio > 2.0) analysis += '\n📱 Панорама/скриншот\n';
-                        else if (ratio > 1.4) analysis += '\n🖼️ Широкоформатное\n';
-                        else if (ratio > 1.1) analysis += '\n📷 Стандартное фото\n';
-                        else if (ratio > 0.9) analysis += '\n⬜ Квадратное\n';
-                        else if (ratio > 0.7) analysis += '\n📱 Портретное\n';
-                        else analysis += '\n📱 Высокое (скриншот)\n';
-
-                        analysis += '\n💡 ПРЕДПОЛОЖЕНИЯ:\n';
-
-                        if (avgBrightness > 180 && saturation < 0.2) {
-                            analysis += '• Документ или скриншот\n';
-                        } else if (avgBrightness > 150 && saturation > 0.3) {
-                            analysis += '• Пейзаж или дневное фото\n';
-                        } else if (avgBrightness < 80) {
-                            analysis += '• Ночное или тёмное фото\n';
-                        }
-
-                        if (ratio > 1.8 || ratio < 0.6) {
-                            analysis += '• Скриншот телефона\n';
-                        }
-
-                        analysis += '\n📝 Расскажи подробнее, что на фото!';
-
-                        resolve(analysis);
-                    };
-
-                    img.onerror = function() {
-                        resolve('🖼️ Фото получено! Расскажи, что на нём изображено.');
-                    };
-
-                    img.src = imageUrl;
-                });
-            }
-
-            function generateSmartResponse(userMessage) {
-                var msg = userMessage.toLowerCase().trim();
-
-                var keys = Object.keys(knowledgeBase);
-                for (var i = 0; i < keys.length; i++) {
-                    if (msg.indexOf(keys[i]) !== -1) {
-                        return knowledgeBase[keys[i]];
-                    }
-                }
-
-                if (msg.indexOf('зовут') !== -1 || msg.indexOf('имя') !== -1) {
-                    var nameMatch = msg.match(/зовут\s+(\w+)|имя\s+(\w+)/i);
-                    if (nameMatch) {
-                        var name = nameMatch[1] || nameMatch[2];
-                        if (name && name.length > 1) {
-                            userFacts.push('Имя: ' + name);
-                            return 'Приятно познакомиться, ' + name + '! 😊 Я запомнил.';
-                        }
-                    }
-                }
-
-                if (msg.indexOf('я из') !== -1 || msg.indexOf('живу в') !== -1 || msg.indexOf('город') !== -1) {
-                    var cityMatch = msg.match(/(?:из|в|город)\s+([А-ЯA-Z]\w+)/i);
-                    if (cityMatch && cityMatch[1]) {
-                        userFacts.push('Город: ' + cityMatch[1]);
-                        return 'Запомнил! ' + cityMatch[1] + ' — отличный город.';
-                    }
-                }
-
-                var cleanMsg = msg.replace(/\s/g, '');
-                if (/^[\d\+\-\*\/\(\)\.\,]+$/.test(cleanMsg) && /[\+\-\*\/]/.test(cleanMsg)) {
-                    try {
-                        var result = eval(cleanMsg);
-                        if (isFinite(result) && !isNaN(result)) {
-                            var roundedResult = isInteger(result) ? result : parseFloat(result.toFixed(6));
-                            return '🧮 ' + msg + ' = ' + roundedResult;
-                        }
-                    } catch (e) {}
-                }
-
-                if (msg.indexOf('время') !== -1 || msg.indexOf('дата') !== -1 || msg.indexOf('число') !== -1) {
-                    var now = new Date();
-                    var days = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
-                    var months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-                    return '🕐 ' + now.toLocaleTimeString('ru-RU') + '\n📅 ' + days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
-                }
-
-                if (msg.indexOf('погода') !== -1) {
-                    return '🌤 Напиши "Погода в [город]" и я поищу информацию!';
-                }
-
-                return null;
-            }
-
-            function generateContextualResponse() {
-                if (!settings.memoryEnabled || conversationMemory.length < 3) return null;
-
-                var responses = [
-                    'Учитывая наш разговор, давай продолжим! Что именно тебя интересует?',
-                    'Я помню контекст. Могу развить тему или перейти к новому вопросу.',
-                    'Исходя из истории диалога, предлагаю углубиться в тему. Что скажешь?'
-                ];
-
-                return responses[Math.floor(Math.random() * responses.length)];
-            }
-
-            async function processMessage(userMessage, isImage, imageUrl) {
-                if (isProcessingMessage) return;
-                isProcessingMessage = true;
-                sendBtn.disabled = true;
-                isImage = isImage || false;
-                imageUrl = imageUrl || null;
-
-                if (isImage && imageUrl) {
-                    addMessage(userMessage || '[Фото]', 'sent', imageUrl);
-                    conversationMemory.push({ role: 'user', content: userMessage || '[Отправлено фото]' });
-
-                    if (settings.visionEnabled) {
-                        addLoadingMessage();
-                        try {
-                            var analysis = await analyzeImage(imageUrl);
-                            removeLoadingMessage();
-                            addMessage(analysis, 'ai');
-                            conversationMemory.push({ role: 'assistant', content: analysis });
-                        } catch (e) {
-                            removeLoadingMessage();
-                            addMessage('❌ Не удалось проанализировать фото.', 'ai');
-                        }
-                    } else {
-                        addMessage('📷 Фото получено! Включи распознавание в настройках.', 'ai');
-                    }
-                } else {
-                    addMessage(userMessage, 'sent');
-                    conversationMemory.push({ role: 'user', content: userMessage });
-
-                    if (conversationMemory.length > 100) {
-                        conversationMemory = conversationMemory.slice(-100);
-                    }
-
-                    addLoadingMessage();
-
-                    var response = generateSmartResponse(userMessage);
-
-                    if (!response && settings.searchEnabled) {
-                        var searchResult = await searchDuckDuckGo(userMessage);
-                        if (!searchResult) {
-                            searchResult = await searchWikipedia(userMessage);
-                        }
-                        if (searchResult) {
-                            response = searchResult;
-                        }
-                    }
-
-                    if (!response) {
-                        response = generateContextualResponse();
-                    }
-
-                    if (!response) {
-                        var fallbacks = [
-                            'Интересно! Расскажи подробнее, я помогу разобраться.',
-                            'Я могу поискать информацию. Что конкретно ты хочешь узнать?',
-                            'Хороший вопрос! Давай уточним детали для более точного ответа.'
-                        ];
-                        response = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-                    }
-
-                    removeLoadingMessage();
-                    addMessage(response, 'ai');
-                    conversationMemory.push({ role: 'assistant', content: response });
-                }
-
-                if (conversationMemory.length > 100) {
-                    conversationMemory = conversationMemory.slice(-100);
-                }
-
-                isProcessingMessage = false;
-                sendBtn.disabled = false;
-                messageInput.focus();
-
-                if (settings.memoryEnabled) {
-                    try {
-                        localStorage.setItem('aiMemory', JSON.stringify(conversationMemory.slice(-50)));
-                        localStorage.setItem('aiFacts', JSON.stringify(userFacts));
-                    } catch (e) {}
-                }
-            }
-
-            function sendMessage() {
-                var text = messageInput.value.trim();
-                if (!text || isProcessingMessage) return;
-                messageInput.value = '';
-                processMessage(text, false, null);
-            }
-
-            function handleFileSelect(event) {
-                var file = event.target.files[0];
-                if (!file) return;
-
-                if (!file.type.match(/^image\//)) {
-                    showToast('⚠️ Только изображения');
-                    fileInput.value = '';
-                    return;
-                }
-
-                if (file.size > 30 * 1024 * 1024) {
-                    showToast('⚠️ Максимум 30MB');
-                    fileInput.value = '';
-                    return;
-                }
-
-                showToast('📷 Анализирую...');
-
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    if (e.target && e.target.result) {
-                        processMessage('[Фото]', true, e.target.result);
-                    }
-                };
-                reader.onerror = function() {
-                    showToast('❌ Ошибка загрузки');
-                };
-                reader.readAsDataURL(file);
-                fileInput.value = '';
-            }
-
-            function openSettings() {
-                settingsModal.classList.add('open');
-                settingsOverlay.classList.add('visible');
-            }
-
-            function closeSettings() {
-                settingsModal.classList.remove('open');
-                settingsOverlay.classList.remove('visible');
-                settings.searchEnabled = searchToggle.checked;
-                settings.memoryEnabled = memoryToggle.checked;
-                settings.visionEnabled = visionToggle.checked;
-                saveSettings();
-            }
-
-            function applyTheme(theme) {
-                settings.theme = theme;
-                phoneFrame.className = 'phone-frame';
-                if (theme === 'light') {
-                    phoneFrame.classList.add('theme-light');
-                }
-
-                for (var i = 0; i < themeButtons.length; i++) {
-                    var btn = themeButtons[i];
-                    if (btn.dataset.theme === theme) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
-                }
-
-                saveSettings();
-                showToast(theme === 'light' ? '☀️ Светлая тема' : '🌙 Тёмная тема', 1500);
-            }
-
-            function saveSettings() {
-                try {
-                    localStorage.setItem('aiBotSettingsV3', JSON.stringify(settings));
-                } catch (e) {}
-            }
-
-            function loadSettings() {
-                try {
-                    var saved = localStorage.getItem('aiBotSettingsV3');
-                    if (saved) {
-                        var parsed = JSON.parse(saved);
-                        if (parsed.theme) settings.theme = parsed.theme;
-                        if (typeof parsed.searchEnabled === 'boolean') settings.searchEnabled = parsed.searchEnabled;
-                        if (typeof parsed.memoryEnabled === 'boolean') settings.memoryEnabled = parsed.memoryEnabled;
-                        if (typeof parsed.visionEnabled === 'boolean') settings.visionEnabled = parsed.visionEnabled;
-
-                        phoneFrame.className = 'phone-frame';
-                        if (settings.theme === 'light') {
-                            phoneFrame.classList.add('theme-light');
-                        }
-
-                        searchToggle.checked = settings.searchEnabled;
-                        memoryToggle.checked = settings.memoryEnabled;
-                        visionToggle.checked = settings.visionEnabled;
-
-                        for (var i = 0; i < themeButtons.length; i++) {
-                            var btn = themeButtons[i];
-                            if (btn.dataset.theme === settings.theme) {
-                                btn.classList.add('active');
-                            } else {
-                                btn.classList.remove('active');
-                            }
-                        }
-                    }
-
-                    var savedMemory = localStorage.getItem('aiMemory');
-                    if (savedMemory && settings.memoryEnabled) {
-                        try {
-                            conversationMemory = JSON.parse(savedMemory);
-                        } catch (e) {
-                            conversationMemory = [];
-                        }
-                    }
-
-                    var savedFacts = localStorage.getItem('aiFacts');
-                    if (savedFacts) {
-                        try {
-                            userFacts = JSON.parse(savedFacts);
-                        } catch (e) {
-                            userFacts = [];
-                        }
-                    }
-                } catch (e) {}
-            }
-
-            // Обработчики
-            unlockBtn.addEventListener('click', function(e) { e.preventDefault(); checkPassword(); });
-            passwordInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') { e.preventDefault(); checkPassword(); }
-            });
-            lockChatBtn.addEventListener('click', function(e) { e.preventDefault(); lockChat(); });
-            memoryBtn.addEventListener('click', function(e) { e.preventDefault(); showMemory(); });
-            clearChatBtn.addEventListener('click', function(e) { e.preventDefault(); clearChat(); });
-            settingsIcon.addEventListener('click', function(e) {
-                e.preventDefault(); e.stopPropagation(); openSettings();
-            });
-            closeSettingsBtn.addEventListener('click', function(e) { e.preventDefault(); closeSettings(); });
-            settingsOverlay.addEventListener('click', function(e) { e.preventDefault(); closeSettings(); });
-            settingsModal.addEventListener('click', function(e) { e.stopPropagation(); });
-            attachBtn.addEventListener('click', function(e) { e.preventDefault(); fileInput.click(); });
-            fileInput.addEventListener('change', handleFileSelect);
-            sendBtn.addEventListener('click', function(e) { e.preventDefault(); sendMessage(); });
-            messageInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-            });
-
-            for (var i = 0; i < themeButtons.length; i++) {
-                (function(btn) {
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        applyTheme(btn.dataset.theme);
-                    });
-                })(themeButtons[i]);
-            }
-
-            document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
-
-            var lastTouchEnd = 0;
-            document.addEventListener('touchend', function(e) {
-                var now = Date.now();
-                if (now - lastTouchEnd <= 300) e.preventDefault();
-                lastTouchEnd = now;
-            }, { passive: false });
-
-            createParticles();
-            loadSettings();
-            passwordInput.focus();
-
-            window.addEventListener('beforeunload', function() { clearParticles(); });
-        })();
-    </script>
-</body>
-</html>
+<script>
+(function() {
+  'use strict';
+
+  var CORRECT_PASSWORD = '1394';
+  var STORAGE_KEY = 'ai_bot_settings_v1';
+  var CHAT_KEY = 'ai_bot_chat_v1';
+  var DUCKDUCKGO_API = 'https://api.duckduckgo.com/';
+
+  var lockScreen = document.getElementById('lockScreen');
+  var lockIcon = document.getElementById('lockIcon');
+  var passwordInput = document.getElementById('passwordInput');
+  var unlockBtn = document.getElementById('unlockBtn');
+  var lockChatBtn = document.getElementById('lockChatBtn');
+  var memoryBtn = document.getElementById('memoryBtn');
+  var clearChatBtn = document.getElementById('clearChatBtn');
+  var settingsIcon = document.getElementById('settingsIcon');
+  var settingsModal = document.getElementById('settingsModal');
+  var settingsOverlay = document.getElementById('settingsOverlay');
+  var closeSettingsBtn = document.getElementById('closeSettingsBtn');
+  var messageInput = document.getElementById('messageInput');
+  var sendBtn = document.getElementById('sendBtn');
+  var messagesContainer = document.getElementById('messagesContainer');
+  var phoneFrame = document.getElementById('phoneFrame');
+  var particlesContainer = document.getElementById('particlesContainer');
+  var themeButtons = document.querySelectorAll('.theme-btn');
+  var toast = document.getElementById('toast');
+  var searchToggle = document.getElementById('searchToggle');
+  var memoryToggle = document.getElementById('memoryToggle');
+  var visionToggle = document.getElementById('visionToggle');
+  var attachBtn = document.getElementById('attachBtn');
+  var fileInput = document.getElementById('fileInput');
+
+  var isLocked = true;
+  var isProcessingUnlock = false;
+  var isProcessingMessage = false;
+  var toastTimer;
+  var particles = [];
+  var pendingImageData = null;
+
+  var settings = {
+    theme: 'dark',
+    searchEnabled: true,
+    memoryEnabled: true,
+    visionEnabled: true
+  };
+
+  function padNumber(num) {
+    return num < 10 ? '0' + num : '' + num;
+  }
+
+  function nowTime() {
+    var d = new Date();
+    return padNumber(d.getHours()) + ':' + padNumber(d.getMinutes());
+  }
+
+  function showToast(message, duration) {
+    duration = duration || 2000;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() {
+      toast.classList.remove('show');
+    }, duration);
+  }
+
+  function applyTheme(theme) {
+    phoneFrame.classList.remove('theme-light', 'theme-dark');
+    phoneFrame.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
+    themeButtons.forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.theme === theme);
+    });
+  }
+
+  function loadSettings() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) settings = Object.assign(settings, JSON.parse(raw));
+    } catch (e) {}
+    searchToggle.checked = !!settings.searchEnabled;
+    memoryToggle.checked = !!settings.memoryEnabled;
+    visionToggle.checked = !!settings.visionEnabled;
+    applyTheme(settings.theme || 'dark');
+  }
+
+  function saveSettings() {
+    settings.theme = document.querySelector('.theme-btn.active')?.dataset.theme || settings.theme;
+    settings.searchEnabled = searchToggle.checked;
+    settings.memoryEnabled = memoryToggle.checked;
+    settings.visionEnabled = visionToggle.checked;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    } catch (e) {}
+  }
+
+  function saveChat() {
+    try {
+      localStorage.setItem(CHAT_KEY, JSON.stringify({
+        html: messagesContainer.innerHTML
+      }));
+    } catch (e) {}
+  }
+
+  function restoreChat() {
+    try {
+      var raw = localStorage.getItem(CHAT_KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (data && data.html) messagesContainer.innerHTML = data.html;
+    } catch (e) {}
+  }
+
+  function isEmptyMessage(text) {
+    return !text || !text.replace(/\s+/g, '').length;
+  }
+
+  function detectIntent(text) {
+    var t = (text || '').toLowerCase();
+    if (/^(привет|здравствуй|здорова|hey|hi)\b/.test(t)) return 'greeting';
+    if (/\b(фото|картинк|изображ|скрин|что на фото|распознай|посмотри)\b/.test(t)) return 'vision';
+    if (/\b(поиск|найди|в интернете|интернет|актуально|сейчас|latest)\b/.test(t)) return 'search';
+    if (/\b(кто ты|что ты умеешь|помощь|help)\b/.test(t)) return 'help';
+    if (/^\//.test(t)) return 'command';
+    return 'chat';
+  }
+
+  function addMessage(text, cls) {
+    var b = document.createElement('div');
+    b.className = 'message-bubble ' + (cls || 'ai');
+    b.textContent = text;
+    messagesContainer.appendChild(b);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    saveChat();
+    return b;
+  }
+
+  function addTyping() {
+    var el = document.createElement('div');
+    el.className = 'message-bubble loading';
+    el.id = 'typingBubble';
+    el.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+    messagesContainer.appendChild(el);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  function removeTyping() {
+    var el = document.getElementById('typingBubble');
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+  }
+
+  function webSearch(query) {
+    return fetch(DUCKDUCKGO_API + '?q=' + encodeURIComponent(query) + '&format=json&no_html=1&skip_disambig=1')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var abs = data.AbstractText || '';
+        var heading = data.Heading || '';
+        var related = (data.RelatedTopics || []).slice(0, 3).map(function(x) {
+          return x.Text || '';
+        }).filter(Boolean);
+
+        var out = [];
+        if (heading) out.push('• ' + heading);
+        if (abs) out.push(abs);
+        if (related.length) out.push('• ' + related.join('\n• '));
+        return out.join('\n\n') || 'Ничего не нашёл по запросу.';
+      })
+      .catch(function() {
+        return 'Не удалось выполнить поиск.';
+      });
+  }
+
+  function analyzeImage(file) {
+    return new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = function() {
+        pendingImageData = reader.result;
+        resolve('Изображение загружено. Теперь отправь текстом, что именно нужно проверить на фото.');
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function handleMessage(text) {
+    var intent = detectIntent(text);
+
+    if (intent === 'greeting') return Promise.resolve('Привет! Я готов помочь.');
+    if (intent === 'help') return Promise.resolve('Я умею искать в интернете, отвечать на вопросы и анализировать изображения.');
+    if (intent === 'command') return Promise.resolve('Команды пока не подключены.');
+    if (intent === 'search' && settings.searchEnabled) return webSearch(text);
+    if (intent === 'vision' && settings.visionEnabled && pendingImageData) {
+      return Promise.resolve('У меня уже есть изображение. Опиши, что именно нужно найти, прочитать или проверить на нём.');
+    }
+
+    return Promise.resolve('Я получил сообщение: ' + text);
+  }
+
+  function sendMessage() {
+    if (isProcessingMessage) return;
+
+    var text = messageInput.value;
+    if (isEmptyMessage(text)) {
+      showToast('Напиши сообщение');
+      return;
+    }
+
+    isProcessingMessage = true;
+    addMessage(text, 'sent');
+    messageInput.value = '';
+    addTyping();
+
+    handleMessage(text).then(function(answer) {
+      removeTyping();
+      addMessage(answer, 'ai');
+      isProcessingMessage = false;
+    }).catch(function() {
+      removeTyping();
+      addMessage('Ошибка обработки сообщения.', 'ai');
+      isProcessingMessage = false;
+    });
+  }
+
+  function checkPassword() {
+    if (isProcessingUnlock || !isLocked) return;
+
+    if (passwordInput.value.trim() === CORRECT_PASSWORD) {
+      isProcessingUnlock = true;
+      unlockBtn.disabled = true;
+      lockScreen.classList.add('unlocked');
+      isLocked = false;
+      passwordInput.value = '';
+      passwordInput.classList.remove('error');
+
+      setTimeout(function() {
+        isProcessingUnlock = false;
+        unlockBtn.disabled = false;
+        messageInput.focus();
+      }, 500);
+    } else {
+      lockIcon.classList.add('shake');
+      passwordInput.classList.add('error');
+      passwordInput.value = '';
+      passwordInput.placeholder = 'Неверный пароль';
+
+      setTimeout(function() {
+        lockIcon.classList.remove('shake');
+        passwordInput.classList.remove('error');
+        passwordInput.placeholder = 'Введите пароль';
+      }, 500);
+    }
+  }
+
+  function createParticles() {
+    var fragment = document.createDocumentFragment();
+    var colors = [
+      'rgba(0, 180, 255, 0.5)',
+      'rgba(123, 47, 255, 0.4)',
+      'rgba(0, 200, 255, 0.3)',
+      'rgba(255, 45, 149, 0.3)'
+    ];
+
+    for (var i = 0; i < 18; i++) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      var size = 2 + Math.random() * 5;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.setProperty('--duration', (5 + Math.random() * 7) + 's');
+      p.style.setProperty('--delay', Math.random() * 7 + 's');
+      p.style.setProperty('--max-opacity', String(0.3 + Math.random() * 0.5));
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      fragment.appendChild(p);
+      particles.push(p);
+    }
+
+    particlesContainer.appendChild(fragment);
+  }
+
+  unlockBtn.addEventListener('click', checkPassword);
+  passwordInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkPassword();
+  });
+
+  lockChatBtn.addEventListener('click', function() {
+    isLocked = true;
+    lockScreen.classList.remove('unlocked');
+    passwordInput.focus();
+  });
+
+  settingsIcon.addEventListener('click', function() {
+    settingsModal.classList.add('open');
+    settingsOverlay.classList.add('visible');
+  });
+
+  closeSettingsBtn.addEventListener('click', function() {
+    settingsModal.classList.remove('open');
+    settingsOverlay.classList.remove('visible');
+    saveSettings();
+    showToast('Настройки сохранены');
+  });
+
+  settingsOverlay.addEventListener('click', function() {
+    settingsModal.classList.remove('open');
+    settingsOverlay.classList.remove('visible');
+    saveSettings();
+  });
+
+  themeButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      applyTheme(btn.dataset.theme);
+      saveSettings();
+    });
+  });
+
+  searchToggle.addEventListener('change', saveSettings);
+  memoryToggle.addEventListener('change', saveSettings);
+  visionToggle.addEventListener('change', saveSettings);
+
+  clearChatBtn.addEventListener('click', function() {
+    messagesContainer.innerHTML = '';
+    addMessage('Чат очищен', 'system');
+    saveChat();
+  });
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  messageInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  attachBtn.addEventListener('click', function() {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', function() {
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+
+    addMessage('📎 ' + file.name, 'sent');
+    addTyping();
+
+    analyzeImage(file).then(function(answer) {
+      removeTyping();
+      addMessage(answer, 'ai');
+      fileInput.value = '';
+    });
+  });
+
+  createParticles();
+  loadSettings();
+  restoreChat();
+
+  if (!messagesContainer.children.length) {
+    addMessage('🤖 Нейросеть активирована', 'system');
+    addMessage('Готов к сообщениям, поиску и изображениям.', 'ai');
+  }
+})();
+</script>

@@ -2,41 +2,45 @@
 <html lang="ru" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#1e1b4b">
 <title>Glass Messenger</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   /* ================= ТЕМЫ ================= */
   :root{
     --bg1:#1e1b4b;  --bg2:#0b1120;
-    --text:#eef2ff; --text-dim:rgba(238,242,255,.62);
+    --text:#eef2ff; --text-dim:rgba(238,242,255,.6);
     --glass:rgba(255,255,255,.08);
     --glass-2:rgba(255,255,255,.14);
+    --glass-3:rgba(255,255,255,.22);
     --stroke:rgba(255,255,255,.16);
     --accent:#6366f1;
     --font-size:15px;
     --shadow:0 12px 40px rgba(2,6,23,.45);
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
   }
   [data-theme="light"]{
     --bg1:#c7d2fe;  --bg2:#f1f5ff;
-    --text:#101a33; --text-dim:rgba(16,26,51,.62);
+    --text:#101a33; --text-dim:rgba(16,26,51,.6);
     --glass:rgba(255,255,255,.5);
     --glass-2:rgba(255,255,255,.75);
+    --glass-3:rgba(255,255,255,.9);
     --stroke:rgba(255,255,255,.9);
     --shadow:0 12px 40px rgba(30,41,89,.18);
   }
 
-  html, body { height:100%; margin:0; }
+  html, body { height:100%; margin:0; overscroll-behavior:none; }
   body{
     font-family:"Segoe UI", system-ui, -apple-system, sans-serif;
     font-size: var(--font-size);
     color: var(--text);
     overflow:hidden;
+    -webkit-font-smoothing: antialiased;
   }
-  ::-webkit-scrollbar{ width:8px; }
-  ::-webkit-scrollbar-thumb{ background: var(--glass-2); border-radius:99px; }
-  ::-webkit-scrollbar-track{ background: transparent; }
+  ::-webkit-scrollbar{ width:0; height:0; }
 
   /* ================= ЖИВОЙ ФОН ================= */
   .bg{
@@ -45,13 +49,13 @@
     transition: background .5s ease;
   }
   .bg::before, .bg::after{
-    content:""; position:absolute; width:65vmax; height:65vmax; border-radius:50%;
-    filter: blur(90px); opacity:.55;
+    content:""; position:absolute; width:85vmax; height:85vmax; border-radius:50%;
+    filter: blur(80px); opacity:.55;
     transition: background .4s, opacity .4s;
     animation: float 22s ease-in-out infinite alternate;
   }
-  .bg::before{ background: var(--accent); top:-22vmax; left:-12vmax; }
-  .bg::after { background:#ec4899; bottom:-28vmax; right:-18vmax; animation-delay:-9s; }
+  .bg::before{ background: var(--accent); top:-25vmax; left:-20vmax; }
+  .bg::after { background:#ec4899; bottom:-30vmax; right:-25vmax; animation-delay:-9s; }
   [data-theme="light"] .bg::before,
   [data-theme="light"] .bg::after{ opacity:.4; }
   @keyframes float{
@@ -59,31 +63,30 @@
     to  { transform: translate(8vmax,6vmax) scale(1.18); }
   }
 
-  /* ================= МАТОВОЕ СТЕКЛО ================= */
+  /* ================= СТЕКЛО ================= */
   .glass{
     background: var(--glass);
     -webkit-backdrop-filter: blur(22px) saturate(160%);
     backdrop-filter: blur(22px) saturate(160%);
     border: 1px solid var(--stroke);
-    border-radius: 22px;
     box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.22);
   }
 
   /* ================= ЭКРАНЫ ================= */
-  .screen{ position:fixed; inset:0; padding:22px; display:none; }
+  .screen{ position:fixed; inset:0; display:none; }
   .screen.active{ display:flex; }
-  #authScreen.active{ align-items:center; justify-content:center; overflow:auto; }
-  #appScreen.active{
-    display:grid;
-    grid-template-columns:270px 1fr;
-    gap:18px;
-    align-items:stretch;
+  #authScreen.active{
+    align-items:center; justify-content:center;
+    padding: calc(20px + var(--safe-t)) 20px calc(20px + var(--safe-b));
+    overflow:auto;
   }
+  #appScreen.active{ flex-direction:column; }
 
-  /* ================= ФОРМА ВХОДА ================= */
+  /* ================= АВТОРИЗАЦИЯ ================= */
   .auth-card{
     width:min(400px, 100%);
-    padding:28px;
+    border-radius: 28px;
+    padding:26px 22px;
     display:flex; flex-direction:column; gap:16px;
     animation: pop .45s cubic-bezier(.2,.9,.3,1.2);
   }
@@ -91,28 +94,29 @@
 
   .brand{ display:flex; gap:14px; align-items:center; }
   .logo{
-    width:52px; height:52px; border-radius:16px; display:grid; place-items:center;
-    font-size:1.5em; color:#fff;
+    width:54px; height:54px; border-radius:18px; display:grid; place-items:center;
+    font-size:1.5em; color:#fff; flex:0 0 auto;
     background: linear-gradient(135deg, var(--accent), #ec4899);
     box-shadow: 0 10px 26px color-mix(in srgb, var(--accent) 45%, transparent);
   }
-  .brand h1{ margin:0; font-size:1.25em; }
-  .brand p{ margin:3px 0 0; font-size:.8em; color: var(--text-dim); }
+  .brand h1{ margin:0; font-size:1.2em; }
+  .brand p{ margin:3px 0 0; font-size:.78em; color: var(--text-dim); }
 
   .tabs{
-    display:flex; gap:6px; padding:5px; border-radius:14px;
+    display:flex; gap:6px; padding:5px; border-radius:16px;
     background: var(--glass); border:1px solid var(--stroke);
   }
   .tabs button{
-    flex:1; padding:9px; border:0; border-radius:10px; cursor:pointer;
-    background:transparent; color:var(--text-dim); font:inherit; transition:.2s;
+    flex:1; padding:11px; border:0; border-radius:12px; cursor:pointer;
+    background:transparent; color:var(--text-dim); font:inherit;
+    font-size:.92em; font-weight:500; transition:.2s; min-height:44px;
   }
   .tabs button.active{ background: var(--accent); color:#fff; box-shadow:0 6px 18px rgba(0,0,0,.25); }
 
   .field{ display:flex; flex-direction:column; gap:6px; }
-  .field span{ font-size:.82em; color: var(--text-dim); }
+  .field span{ font-size:.8em; color: var(--text-dim); padding-left:4px; }
   .field input{
-    padding:12px 14px; border-radius:13px; font:inherit; outline:none;
+    padding:14px 16px; border-radius:14px; font:inherit; outline:none; min-height:48px;
     border:1px solid var(--stroke); background: var(--glass); color: var(--text);
     transition:.2s;
   }
@@ -122,130 +126,222 @@
   }
 
   .btn{
-    padding:12px 16px; border-radius:13px; cursor:pointer; font:inherit;
+    padding:14px 18px; border-radius:14px; cursor:pointer; font:inherit;
     border:1px solid var(--stroke); background: var(--glass-2); color: var(--text);
-    transition:.2s;
+    transition:.2s; min-height:48px; font-weight:500;
   }
-  .btn:hover{ transform: translateY(-1px); }
+  .btn:active{ transform: scale(.97); }
   .btn.primary{
     background: var(--accent); color:#fff; border-color:transparent; font-weight:600;
     box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 40%, transparent);
   }
-  .btn.ghost{ background:transparent; }
+  .btn.icon{
+    padding:0; width:48px; min-width:48px; height:48px; border-radius:50%;
+    display:grid; place-items:center; font-size:1.1em;
+  }
 
   .msg{ margin:0; min-height:1.2em; font-size:.85em; color:#ff8a8a; }
   .msg.ok{ color:#63d99a; }
   .hint{ margin:0; font-size:.75em; color:var(--text-dim); text-align:center; }
 
-  /* ================= САЙДБАР ================= */
-  .sidebar{ display:flex; flex-direction:column; gap:16px; padding:20px; min-height:0; }
-  .profile{ display:flex; gap:12px; align-items:center; }
-  .avatar{
-    width:44px; height:44px; border-radius:14px; display:grid; place-items:center;
-    font-weight:700; color:#fff; flex:0 0 auto;
+  /* ================= МОБИЛЬНЫЙ ЛЭЙАУТ ================= */
+  #appScreen{
+    padding: 0;
+  }
+
+  /* --- Шапка --- */
+  .topbar{
+    flex:0 0 auto;
+    display:flex; align-items:center; gap:12px;
+    padding: calc(10px + var(--safe-t)) 16px 12px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    backdrop-filter: blur(22px) saturate(160%);
+    border-bottom: 1px solid var(--stroke);
+  }
+  .topbar .avatar{
+    width:42px; height:42px; border-radius:14px; display:grid; place-items:center;
+    font-weight:700; color:#fff; flex:0 0 auto; font-size:1.05em;
     background: linear-gradient(135deg, var(--accent), #ec4899);
   }
-  .menu{ display:flex; flex-direction:column; gap:6px; flex:1; min-height:0; }
-  .menu button{
-    display:flex; align-items:center; gap:10px; padding:12px 14px;
-    border-radius:13px; border:1px solid transparent; background:transparent;
-    color: var(--text-dim); font:inherit; text-align:left; cursor:pointer; transition:.2s;
+  .topbar-info{ flex:1; min-width:0; }
+  .topbar-info .name{
+    font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .menu button:hover{ color: var(--text); }
-  .menu button.active{
-    background: var(--glass-2); border-color: var(--stroke); color: var(--text);
+  .topbar-info .status{
+    font-size:.78em; color: var(--text-dim); margin-top:1px;
+    display:flex; align-items:center; gap:5px;
   }
+  .topbar-info .status::before{
+    content:""; width:7px; height:7px; border-radius:50%; background:#22c55e;
+    box-shadow: 0 0 8px #22c55e;
+  }
+  .icon-btn{
+    width:42px; height:42px; border-radius:50%; border:1px solid var(--stroke);
+    background: var(--glass); color: var(--text); font-size:1.15em;
+    display:grid; place-items:center; cursor:pointer; transition:.2s;
+    flex:0 0 auto;
+  }
+  .icon-btn:active{ transform: scale(.92); background: var(--glass-2); }
 
-  /* ================= ПАНЕЛЬ ================= */
-  .panel{ display:flex; flex-direction:column; padding:20px; min-height:0; }
-  .panel-head{ padding-bottom:14px; }
-  .panel-head h2{ margin:0; font-size:1.15em; }
+  /* --- Контент --- */
+  .content{
+    flex:1; min-height:0; position:relative;
+  }
+  .view{
+    position:absolute; inset:0; display:none; flex-direction:column;
+  }
+  .view.active{ display:flex; animation: fadeIn .25s ease; }
+  @keyframes fadeIn{ from{ opacity:0; transform: translateY(6px); } }
 
-  .view{ display:none; flex:1; min-height:0; flex-direction:column; }
-  .view.active{ display:flex; }
-
-  /* чат */
+  /* --- Чат --- */
   .chat-scroll{
-    flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;
-    padding:6px 4px 14px;
+    flex:1; overflow-y:auto; -webkit-overflow-scrolling: touch;
+    display:flex; flex-direction:column; gap:8px;
+    padding: 16px 14px calc(14px + var(--safe-b));
   }
   .bubble{
-    max-width:74%; padding:10px 14px; border-radius:16px;
+    max-width:80%; padding:11px 14px; border-radius:18px;
     background: var(--glass-2); border:1px solid var(--stroke);
-    align-self:flex-start; animation: pop .25s ease;
+    align-self:flex-start;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    animation: pop .22s ease;
+    font-size:.98em; line-height:1.35;
+    word-wrap: break-word; overflow-wrap: anywhere;
   }
   .bubble.me{
-    align-self:flex-end; background: var(--accent); color:#fff; border-color:transparent;
+    align-self:flex-end;
+    background: var(--accent); color:#fff; border-color:transparent;
+    border-bottom-right-radius: 6px;
   }
-  .bubble-time{ font-size:.72em; opacity:.65; margin-top:4px; text-align:right; }
+  .bubble:not(.me){ border-bottom-left-radius: 6px; }
+  .bubble-time{ font-size:.68em; opacity:.6; margin-top:5px; text-align:right; }
 
+  /* --- Поле ввода --- */
   .composer{
-    display:flex; gap:10px; padding-top:12px; border-top:1px solid var(--stroke);
+    flex:0 0 auto;
+    display:flex; gap:8px; align-items:flex-end;
+    padding: 10px 14px calc(10px + var(--safe-b));
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    backdrop-filter: blur(22px) saturate(160%);
+    border-top: 1px solid var(--stroke);
   }
   .composer input{
-    flex:1; padding:13px 16px; border-radius:14px; font:inherit; outline:none;
-    border:1px solid var(--stroke); background: var(--glass); color: var(--text);
+    flex:1; padding:13px 18px; border-radius:22px; font:inherit; outline:none;
+    border:1px solid var(--stroke); background: var(--glass-2); color: var(--text);
+    min-height:48px; font-size:1em;
   }
   .composer input:focus{ border-color: var(--accent); }
+  .send-btn{
+    width:48px; height:48px; border-radius:50%; border:none; cursor:pointer;
+    background: var(--accent); color:#fff; font-size:1.1em;
+    display:grid; place-items:center; flex:0 0 auto; transition:.2s;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .send-btn:active{ transform: scale(.9); }
 
-  /* настройки */
+  /* --- Настройки --- */
   .settings-scroll{
-    flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:16px; padding-right:6px;
+    flex:1; overflow-y:auto; -webkit-overflow-scrolling: touch;
+    padding: 16px 14px calc(90px + var(--safe-b));
+    display:flex; flex-direction:column; gap:14px;
   }
   .group{
-    padding:16px; border-radius:18px; display:flex; flex-direction:column; gap:14px;
+    padding:16px; border-radius:20px; display:flex; flex-direction:column; gap:14px;
     background: var(--glass); border:1px solid var(--stroke);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
   }
   .group-title{
-    font-size:.78em; text-transform:uppercase; letter-spacing:.09em; color: var(--text-dim);
+    font-size:.76em; text-transform:uppercase; letter-spacing:.09em;
+    color: var(--text-dim); font-weight:600;
   }
-  .row{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
-  .row-title{ font-weight:600; }
-  .row-sub{ font-size:.82em; color: var(--text-dim); margin-top:2px; }
+  .row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    min-height:44px;
+  }
+  .row-text{ flex:1; min-width:0; }
+  .row-title{ font-weight:500; font-size:.95em; }
+  .row-sub{ font-size:.78em; color: var(--text-dim); margin-top:3px; }
+  .row.col{ flex-direction:column; align-items:stretch; gap:10px; }
 
   .segmented{
-    display:flex; gap:4px; padding:4px; border-radius:12px;
+    display:flex; gap:4px; padding:4px; border-radius:14px;
     background: var(--glass-2); border:1px solid var(--stroke);
+    width:100%;
   }
   .segmented button{
-    border:0; background:transparent; color: var(--text-dim); font:inherit;
-    font-size:.88em; padding:8px 12px; border-radius:9px; cursor:pointer; transition:.2s;
+    flex:1; border:0; background:transparent; color: var(--text-dim); font:inherit;
+    font-size:.85em; padding:11px 8px; border-radius:10px; cursor:pointer;
+    transition:.2s; min-height:42px;
   }
   .segmented button.active{ background: var(--accent); color:#fff; }
 
-  .swatches{ display:flex; gap:8px; }
+  .swatches{ display:flex; gap:10px; padding:2px 0; }
   .swatches button{
-    width:26px; height:26px; border-radius:50%; cursor:pointer; padding:0;
+    width:38px; height:38px; border-radius:50%; cursor:pointer; padding:0;
     border:2px solid transparent; background: var(--c); transition:.2s;
+    flex:1; max-width:42px;
   }
-  .swatches button:hover{ transform: scale(1.12); }
-  .swatches button.active{ border-color: var(--text); transform: scale(1.12); }
+  .swatches button:active{ transform: scale(.9); }
+  .swatches button.active{
+    border-color: var(--text);
+    box-shadow: 0 0 0 3px var(--glass-3);
+  }
 
-  input[type="range"]{ width:150px; accent-color: var(--accent); cursor:pointer; }
+  input[type="range"]{
+    width:100%; accent-color: var(--accent); cursor:pointer;
+    height:32px;
+  }
 
-  /* переключатель */
-  .switch{ position:relative; display:inline-block; width:46px; height:26px; flex:0 0 auto; }
+  .switch{ position:relative; display:inline-block; width:50px; height:30px; flex:0 0 auto; }
   .switch input{ position:absolute; inset:0; opacity:0; margin:0; cursor:pointer; z-index:2; }
   .switch span{
     position:absolute; inset:0; border-radius:99px; transition:.25s;
     background: var(--glass-2); border:1px solid var(--stroke);
   }
   .switch span::after{
-    content:""; position:absolute; top:2px; left:2px; width:20px; height:20px;
-    border-radius:50%; background: var(--text); opacity:.8; transition:.25s;
+    content:""; position:absolute; top:3px; left:3px; width:22px; height:22px;
+    border-radius:50%; background: var(--text); opacity:.7; transition:.25s;
   }
   .switch input:checked + span{ background: var(--accent); border-color:transparent; }
   .switch input:checked + span::after{ transform: translateX(20px); background:#fff; opacity:1; }
 
-  /* ================= АДАПТИВ ================= */
-  @media (max-width: 780px){
-    #appScreen.active{ grid-template-columns:1fr; grid-template-rows:auto 1fr; }
-    .sidebar{ flex-direction:row; align-items:center; padding:12px; gap:10px; }
-    .menu{ flex-direction:row; }
-    .menu button{ padding:10px 12px; }
-    .profile div:nth-child(2){ display:none; }
-    .sidebar .btn.ghost{ margin-left:auto; }
+  .logout-btn{
+    width:100%; padding:15px; border-radius:16px; font:inherit; font-weight:500;
+    border:1px solid rgba(255,120,120,.35); background: rgba(255,90,90,.12);
+    color:#ff8a8a; cursor:pointer; transition:.2s; min-height:52px;
   }
+  .logout-btn:active{ transform: scale(.98); background: rgba(255,90,90,.2); }
+
+  /* ================= НИЖНЯЯ НАВИГАЦИЯ ================= */
+  .bottom-nav{
+    position:absolute; left:0; right:0; bottom:0; z-index:10;
+    display:flex; justify-content:space-around; align-items:center;
+    padding: 8px 12px calc(8px + var(--safe-b));
+    background: var(--glass-3);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid var(--stroke);
+  }
+  .nav-btn{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding: 8px 4px; border:0; background:transparent; color: var(--text-dim);
+    font:inherit; cursor:pointer; border-radius:14px; transition:.2s;
+    min-height:54px; justify-content:center;
+  }
+  .nav-btn .nav-icon{ font-size:1.3em; line-height:1; }
+  .nav-btn .nav-label{ font-size:.72em; font-weight:500; }
+  .nav-btn.active{ color: var(--accent); }
+  .nav-btn.active .nav-icon{
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 60%, transparent));
+  }
+  .nav-btn:active{ transform: scale(.94); }
+
+  /* Индикатор для settings view */
+  #view-settings .settings-scroll{ padding-bottom: calc(90px + var(--safe-b)); }
 </style>
 </head>
 <body>
@@ -259,7 +355,7 @@
       <div class="logo">◈</div>
       <div>
         <h1>Glass Messenger</h1>
-        <p>матовое стекло • приватность • стиль</p>
+        <p>матовое стекло • приватность</p>
       </div>
     </div>
 
@@ -292,32 +388,25 @@
 <!-- ============ ПРИЛОЖЕНИЕ ============ -->
 <div class="screen" id="appScreen">
 
-  <aside class="glass sidebar">
-    <div class="profile">
-      <div class="avatar" id="avatar">?</div>
-      <div>
-        <div id="userName" style="font-weight:600">Гость</div>
-        <div class="row-sub">в сети</div>
-      </div>
+  <!-- Шапка -->
+  <header class="topbar">
+    <div class="avatar" id="avatar">?</div>
+    <div class="topbar-info">
+      <div class="name" id="userName">Гость</div>
+      <div class="status">в сети</div>
     </div>
+    <button class="icon-btn" id="settingsShortcut" type="button" aria-label="Настройки">⚙️</button>
+  </header>
 
-    <nav class="menu">
-      <button class="active" data-view="chats" type="button">💬 Чаты</button>
-      <button data-view="settings" type="button">⚙️ Настройки</button>
-    </nav>
-
-    <button class="btn ghost" id="logout" type="button">Выйти</button>
-  </aside>
-
-  <main class="glass panel">
-    <div class="panel-head"><h2 id="viewTitle">Чаты</h2></div>
+  <!-- Контент -->
+  <div class="content">
 
     <!-- ЧАТЫ -->
     <section class="view active" id="view-chats">
       <div class="chat-scroll" id="chatScroll"></div>
       <form class="composer" id="composer">
-        <input id="msgInput" type="text" placeholder="Написать сообщение…" autocomplete="off">
-        <button class="btn primary" type="submit">➤</button>
+        <input id="msgInput" type="text" placeholder="Сообщение…" autocomplete="off">
+        <button class="send-btn" type="submit" aria-label="Отправить">➤</button>
       </form>
     </section>
 
@@ -328,19 +417,19 @@
         <div class="group">
           <div class="group-title">Оформление</div>
 
-          <div class="row">
+          <div class="row col">
             <div class="row-text">
               <div class="row-title">Тема</div>
               <div class="row-sub">Тёмная, светлая или как в системе</div>
             </div>
             <div class="segmented" id="themeSeg">
-              <button type="button" data-value="dark">Тёмная</button>
-              <button type="button" data-value="light">Светлая</button>
-              <button type="button" data-value="system">Авто</button>
+              <button type="button" data-value="dark">🌙 Тёмная</button>
+              <button type="button" data-value="light">☀️ Светлая</button>
+              <button type="button" data-value="system">⚙️ Авто</button>
             </div>
           </div>
 
-          <div class="row">
+          <div class="row col">
             <div class="row-text">
               <div class="row-title">Акцентный цвет</div>
               <div class="row-sub">Подсветка кнопок и стекла</div>
@@ -354,7 +443,7 @@
             </div>
           </div>
 
-          <div class="row">
+          <div class="row col">
             <div class="row-text">
               <div class="row-title">Размер шрифта</div>
               <div class="row-sub"><span id="fontSizeVal">15</span> px</div>
@@ -385,7 +474,7 @@
           <div class="row">
             <div class="row-text">
               <div class="row-title">Текст в превью</div>
-              <div class="row-sub">Показывать содержимое в списке чатов</div>
+              <div class="row-sub">Показывать содержимое в списке</div>
             </div>
             <label class="switch"><input type="checkbox" id="optPreview"><span></span></label>
           </div>
@@ -402,10 +491,25 @@
           </div>
         </div>
 
+        <button class="logout-btn" id="logout" type="button">Выйти из аккаунта</button>
+
       </div>
     </section>
 
-  </main>
+  </div>
+
+  <!-- Нижняя навигация -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="chats" type="button">
+      <span class="nav-icon">💬</span>
+      <span class="nav-label">Чаты</span>
+    </button>
+    <button class="nav-btn" data-view="settings" type="button">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Настройки</span>
+    </button>
+  </nav>
+
 </div>
 
 <script>
@@ -439,6 +543,10 @@ function applySettings() {
   document.documentElement.dataset.theme = theme;
   document.documentElement.style.setProperty('--accent', settings.accent);
   document.documentElement.style.setProperty('--font-size', settings.fontSize + 'px');
+
+  // Обновляем meta theme-color
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = theme === 'light' ? '#e0e7ff' : '#1e1b4b';
 }
 
 function syncSettingsUI() {
@@ -474,7 +582,6 @@ $$('.tabs button').forEach(btn => btn.addEventListener('click', () => {
   showMsg('');
 }));
 
-/* Простейший хеш — только для демо, не для реальной безопасности! */
 function hash(str) {
   let h = 5381;
   for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
@@ -531,6 +638,7 @@ function startSession(nick) {
   $('#authForm').reset();
   showMsg('');
   renderChat();
+  switchView('chats');
 }
 
 function logout() {
@@ -543,7 +651,7 @@ function logout() {
 /* ==================== ЧАТ ==================== */
 const messages = [
   { me: false, text: 'Привет! Добро пожаловать в Glass Messenger 👋', time: '12:00' },
-  { me: false, text: 'Интерфейс из матового стекла. Загляни в настройки — там темы и акценты.', time: '12:01' }
+  { me: false, text: 'Мобильный интерфейс из матового стекла. Загляни в настройки — там темы и акценты.', time: '12:01' }
 ];
 
 function escapeHtml(s) {
@@ -574,18 +682,19 @@ $('#composer').addEventListener('submit', e => {
     time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
   });
   input.value = '';
+  input.focus();
   renderChat();
 });
 
 /* ==================== НАВИГАЦИЯ ==================== */
-$$('.menu button').forEach(btn => btn.addEventListener('click', () => {
-  const view = btn.dataset.view;
-
-  $$('.menu button').forEach(b => b.classList.toggle('active', b === btn));
+function switchView(view) {
+  $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + view));
+}
 
-  $('#viewTitle').textContent = view === 'chats' ? 'Чаты' : 'Настройки';
-}));
+$$('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+
+$('#settingsShortcut').addEventListener('click', () => switchView('settings'));
 
 /* ==================== ОБРАБОТЧИКИ НАСТРОЕК ==================== */
 $$('#themeSeg button').forEach(b => b.addEventListener('click', () => {
@@ -610,7 +719,7 @@ $('#optEnter').addEventListener('change',   e => { settings.enterSend = e.target
 
 $('#logout').addEventListener('click', logout);
 
-/* Авто-тема: реакция на смену системной темы */
+/* Авто-тема */
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
   if (settings.theme === 'system') applySettings();
 });
